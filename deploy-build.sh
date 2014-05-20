@@ -39,6 +39,7 @@ rm -rf "/var/repos/wsuwp-platform/build-themes/private/$2/.git"
 
 # Build the project to prep for deployment.
 cd /var/repos/wsuwp-platform/
+rm -rf /var/repos/wsuwp-platform/build
 grunt
 
 # Tell cron that we're again ready for deploy.
