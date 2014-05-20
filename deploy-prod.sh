@@ -1,9 +1,11 @@
 #!/bin/sh
 if [ -f "/var/repos/wsuwp-deployment/deploy.json" ]; then
+  deploy_trigger=$(cat /var/repos/wsuwp-deployment/deploy.json)
   rm /var/repos/wsuwp-deployment/deploy.json
 
-  date +%x%t%T%z >> /var/repos/wsuwp-deployment/prod-deployments.log
-  date +%x%t%T%z > /var/repos/wsuwp-platform/build/wordpress/deployed-last.txt
+  deploy_date=$(date +%x%t%T%z)
+  echo "$deploy_date - $deploy_trigger" >> /var/repos/wsuwp-deployment/prod-deployments.log
+  echo "$deploy_date - $deploy_trigger" > /var/repos/wsuwp-platform/build/wordpress/deployed-last.txt
 
   # Setup permissions before syncing files.
   chown -R www-data:www-data /var/repos/wsuwp-platform

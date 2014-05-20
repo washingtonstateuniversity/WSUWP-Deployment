@@ -52,6 +52,8 @@ find "/var/repos/wsuwp-platform/build/" -type f -exec chmod 664 {} \;
 
 # Tell cron that we're again ready for deploy.
 touch /var/repos/wsuwp-deployment/deploy.json
+echo "$2 $1" > /var/repos/wsuwp-deployment/deploy.json
+
 chmod 664 /var/repos/wsuwp-deployment/deploy.json
 
 exit 1
