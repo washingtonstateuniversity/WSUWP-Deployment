@@ -44,6 +44,12 @@ cd /var/repos/wsuwp-platform/
 rm -rf /var/repos/wsuwp-platform/build
 grunt
 
+# Ensure all files are set to be group read/write so that our www-data and
+# www-deploy users can handle them. This corrects possible issues in local
+# development where elevated permissions can be set.
+find "/var/repos/wsuwp-platform/build/" -type d -exec chmod 775 {} \;
+find "/var/repos/wsuwp-platform/build/" -type f -exec chmod 664 {} \;
+
 # Tell cron that we're again ready for deploy.
 touch /var/repos/wsuwp-deployment/deploy.json
 chmod 664 /var/repos/wsuwp-deployment/deploy.json
