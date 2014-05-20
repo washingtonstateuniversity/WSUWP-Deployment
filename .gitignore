@@ -12,3 +12,6 @@
 
 # Ignore node modules created by NPM
 /node_modules
+
+# Ignore log file created during deployment.
+/prod-deployments.log
