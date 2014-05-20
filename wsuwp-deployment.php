@@ -191,7 +191,7 @@ class WSU_Deployment {
 
 		$repository_directory = sanitize_key( $post->post_name );
 
-		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy ' . $tag . ' ' . $repository_directory );
+		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory );
 	}
 
 	/**
