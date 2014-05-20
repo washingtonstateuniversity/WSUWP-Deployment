@@ -4,7 +4,9 @@
 
 # Remove any existing deploy trigger to prevent concurrent operations in the
 # case where multiple projects are being deployed at once.
-rm /var/repos/wsuwp-deployment/deploy.json
+if [ -f "/var/repos/wsuwp-deployment/deploy.json" ]; then
+  rm /var/repos/wsuwp-deployment/deploy.json
+fi
 
 # If a deployment is not yet configured, expect a third argument containing
 # the repository URL. We'll need to configure private repositories manually.
@@ -39,9 +41,11 @@ rm -rf "/var/repos/wsuwp-platform/build-themes/private/$2/.git"
 
 # Build the project to prep for deployment.
 cd /var/repos/wsuwp-platform/
+rm -rf /var/repos/wsuwp-platform/build
 grunt
 
 # Tell cron that we're again ready for deploy.
 touch /var/repos/wsuwp-deployment/deploy.json
+chmod 664 /var/repos/wsuwp-deployment/deploy.json
 
 exit 1
