@@ -59,6 +59,19 @@ if [ 'build-plugins-public' == $4 ]; then
   rm -rf "/var/repos/wsuwp-platform/build-plugins/public/.git"
 fi
 
+# Our public themes build is in a very specific place and does not follow
+# the git procedure that other actions follow.
+if [ 'build-themes-public' == $4 ]; then
+  # Remove the old public directory if it exists.
+  if [ -d "/var/repos/wsuwp-platform/build-themes/public" ]; then
+    rm -rf "/var/repos/wsuwp-platform/build-themes/public"
+  fi
+
+  # Copy over the new public themes directory and remove its .git directory.
+  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-themes/public"
+  rm -rf "/var/repos/wsuwp-platform/build-themes/public/.git"
+fi
+
 # Build the project to prep for deployment.
 cd /var/repos/wsuwp-platform/
 rm -rf /var/repos/wsuwp-platform/build
