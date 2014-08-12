@@ -20,10 +20,22 @@ class WSU_Deployment {
 	var $deploy_instance_slug = 'wsuwp_depinstance';
 
 	/**
+	 * @var array List of deploy types allowed by default.
+	 */
+	var $allowed_deploy_types = array(
+		'theme-public',
+		'theme-private',
+		'build-plugins-public',
+		'plugin-private',
+		'platform'
+	);
+
+	/**
 	 * Add hooks.
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
+		add_action( 'save_post', array( $this, 'save_deploy_type' ), 10, 2 );
 	}
 
 	/**
@@ -205,8 +217,68 @@ class WSU_Deployment {
 			return;
 		}
 
+		add_meta_box( 'wsuwp_deploy_type', 'Deploy Type', array( $this, 'display_deploy_type' ), $this->post_type_slug, 'normal' );
 		add_meta_box( 'wsuwp_deploy_instances', 'Deploy Instances', array( $this, 'display_deploy_instances' ), $this->post_type_slug, 'normal' );
 		add_meta_box( 'wsuwp_deploy_instance_data', 'Deploy Payload', array( $this, 'display_instance_payload' ), $this->deploy_instance_slug, 'normal' );
+	}
+
+	public function display_deploy_type( $post ) {
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		$deployment_type = get_post_meta( get_the_ID(), '_deploy_type', true );
+
+		// Force a deployment type from those we expect.
+		if ( ! in_array( $deployment_type, $this->allowed_deploy_types ) ) {
+			$deployment_type = 'theme-public';
+		}
+
+		wp_nonce_field( 'wsuwp-save-deploy-type', '_wsuwp_deploy_type_nonce' );
+		?>
+		<label for="wsuwp_deploy_type">Deployment Type:</label>
+		<select name="wsuwp_deploy_type" id="wsuwp_deploy_type">
+			<option value="theme-public" <?php selected( 'theme-public', $deployment_type, true ); ?>>Public Theme</option>
+			<option value="theme-private" <?php selected( 'theme-private', $deployment_type, true ); ?>>Private Theme</option>
+			<option value="plugin-private" <?php selected( 'plugin-private', $deployment_type, true ); ?>>Private Plugin</option>
+			<option value="build-plugins-public" <?php selected( 'build-plugins-public', $deployment_type, true ); ?>>Build Plugins Public</option>
+			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Save the deployment type to meta for the deployment instance. By default, we'll assume "theme-public".
+	 *
+	 * @param int     $post_id ID of the post being saved.
+	 * @param WP_Post $post    Post being saved.
+	 */
+	public function save_deploy_type( $post_id, $post ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['_wsuwp_deploy_type_nonce'] ) || ! wp_verify_nonce( $_POST['_wsuwp_deploy_type_nonce'], 'wsuwp-save-deploy-type' ) ) {
+			return;
+		}
+
+		if ( 'auto-draft' === $post->post_status ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['wsuwp_deploy_type'] ) || ! in_array( $_POST['wsuwp_deploy_type'], $this->allowed_deploy_types ) ) {
+			$deploy_type = 'theme-public';
+		} else {
+			$deploy_type = $_POST['wsuwp_deploy_type'];
+		}
+
+		update_post_meta( $post_id, '_deploy_type', $deploy_type );
+
+		return;
 	}
 
 	/**
