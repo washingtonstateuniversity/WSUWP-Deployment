@@ -191,9 +191,11 @@ class WSU_Deployment {
 	}
 
 	/**
-	 * Hand deployment details to the relevant script on the production machine.
+	 * Hand deployment details to the relevant script on the production machine. Script
+	 * is called as:
 	 *
-	 * @todo handle plugins and themes, right now we're assuming theme
+	 * deploy-build.sh 0.0.1 dir-of-theme theme-public
+	 * SCRIPT ^        TAG ^ DIRECTORY ^  TYPE ^
 	 *
 	 * @param string  $tag  Tagged version being deployed.
 	 * @param WP_Post $post Object containing the project being deployed.
@@ -206,7 +208,12 @@ class WSU_Deployment {
 
 		$repository_directory = sanitize_key( $post->post_name );
 
-		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory );
+		$deploy_type = get_post_meta( $post->ID, '_deploy_type', true );
+		if ( ! in_array( $deploy_type, $this->allowed_deploy_types ) ) {
+			$deploy_type = 'theme-public';
+		}
+
+		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $deploy_type );
 	}
 
 	/**
