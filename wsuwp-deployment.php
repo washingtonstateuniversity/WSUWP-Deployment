@@ -4,7 +4,7 @@ Plugin Name: WSUWP Deployment
 Plugin URI: http://web.wsu.edu
 Description: Receive deploy requests in WordPress and act accordingly.
 Author: washingtonstateuniversity, jeremyfelt
-Version: 0.2
+Version: 0.3.0
 */
 
 class WSU_Deployment {
@@ -20,10 +20,25 @@ class WSU_Deployment {
 	var $deploy_instance_slug = 'wsuwp_depinstance';
 
 	/**
+	 * @var array List of deploy types allowed by default.
+	 */
+	var $allowed_deploy_types = array(
+		'theme-public',
+		'theme-private',
+		'build-plugins-public',
+		'build-themes-public',
+		'plugin-public',
+		'plugin-private',
+		'platform'
+	);
+
+	/**
 	 * Add hooks.
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
+		add_action( 'save_post', array( $this, 'save_repository_url' ), 10, 2 );
+		add_action( 'save_post', array( $this, 'save_deploy_type' ), 10, 2 );
 	}
 
 	/**
@@ -179,19 +194,36 @@ class WSU_Deployment {
 	}
 
 	/**
-	 * Hand deployment details to the relevant script on the production machine.
+	 * Hand deployment details to the relevant script on the production machine. Script
+	 * is called as:
 	 *
-	 * @todo handle plugins and themes, right now we're assuming theme
+	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-public
+	 * SCRIPT ^        TAG ^ DIRECTORY ^        REPOSITORY URL ^                                            TYPE ^
 	 *
 	 * @param string  $tag  Tagged version being deployed.
 	 * @param WP_Post $post Object containing the project being deployed.
 	 */
 	private function _handle_deploy( $tag, $post ) {
-		$tag = escapeshellarg( $tag ); // @todo we have a format we can assert
+		// Tags can only be alphanumeric with dashes and dots
+		if ( 0 === preg_match( '|^([a-zA-Z0-9-.])+$|', $tag ) ) {
+			die( 'Invalid tag format' );
+		}
 
 		$repository_directory = sanitize_key( $post->post_name );
 
-		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory );
+		$deploy_type = get_post_meta( $post->ID, '_deploy_type', true );
+		if ( ! in_array( $deploy_type, $this->allowed_deploy_types ) ) {
+			$deploy_type = 'theme-public';
+		}
+
+		$repository_url = get_post_meta( $post->ID, '_repository_url', true );
+		if ( false === $repository_url || empty( $repository_url ) ) {
+			return;
+		} else {
+			$repository_url = esc_url( $repository_url );
+		}
+
+		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type );
 	}
 
 	/**
@@ -205,8 +237,127 @@ class WSU_Deployment {
 			return;
 		}
 
+		add_meta_box( 'wsuwp_deploy_repository', 'Repository URL', array( $this, 'display_repository_url' ), $this->post_type_slug, 'normal' );
+		add_meta_box( 'wsuwp_deploy_type', 'Deploy Type', array( $this, 'display_deploy_type' ), $this->post_type_slug, 'normal' );
 		add_meta_box( 'wsuwp_deploy_instances', 'Deploy Instances', array( $this, 'display_deploy_instances' ), $this->post_type_slug, 'normal' );
 		add_meta_box( 'wsuwp_deploy_instance_data', 'Deploy Payload', array( $this, 'display_instance_payload' ), $this->deploy_instance_slug, 'normal' );
+	}
+
+	/**
+	 * Display a meta box for storing the repository's URL.
+	 *
+	 * @param WP_Post $post Current post data.
+	 */
+	public function display_repository_url( $post ) {
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		$repository_url = get_post_meta( $post->ID, '_repository_url', true );
+
+		if ( $repository_url ) {
+			$repository_url = esc_url( $repository_url );
+		} else {
+			$repository_url = '';
+		}
+
+		wp_nonce_field( 'wsuwp-save-repository', '_wsuwp_repository_nonce' );
+		?>
+		<label for="wsuwp_deploy_repository">Repository URL:</label>
+		<input name="wsuwp_deploy_repository" id="wsu_deploy_repository" type="text" value="<?php echo $repository_url; ?>" />
+		<?php
+	}
+
+	/**
+	 * Save a repository URL with a post for use with deployment.
+	 *
+	 * @param int     $post_id ID of the post being saved.
+	 * @param WP_Post $post    Full post object of post being saved.
+	 */
+	public function save_repository_url( $post_id, $post ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['_wsuwp_repository_nonce'] ) || ! wp_verify_nonce( $_POST['_wsuwp_repository_nonce'], 'wsuwp-save-repository' ) ) {
+			return;
+		}
+
+		if ( 'auto-draft' === $post->post_status ) {
+			return;
+		}
+
+		if ( isset( $_POST['wsuwp_deploy_repository'] ) && ! empty( trim( $_POST['wsuwp_deploy_repository'] ) ) ) {
+			update_post_meta( $post_id, '_repository_url', esc_url_raw( $_POST['wsuwp_deploy_repository'] ) );
+		}
+	}
+
+	/**
+	 * Store the deploy type for a deployment.
+	 *
+	 * @param WP_Post $post Current post being edited.
+	 */
+	public function display_deploy_type( $post ) {
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		$deployment_type = get_post_meta( $post->ID, '_deploy_type', true );
+
+		// Force a deployment type from those we expect.
+		if ( ! in_array( $deployment_type, $this->allowed_deploy_types ) ) {
+			$deployment_type = 'theme-public';
+		}
+
+		wp_nonce_field( 'wsuwp-save-deploy-type', '_wsuwp_deploy_type_nonce' );
+		?>
+		<label for="wsuwp_deploy_type">Deployment Type:</label>
+		<select name="wsuwp_deploy_type" id="wsuwp_deploy_type">
+			<option value="theme-public" <?php selected( 'theme-public', $deployment_type, true ); ?>>Public Theme</option>
+			<option value="theme-private" <?php selected( 'theme-private', $deployment_type, true ); ?>>Private Theme</option>
+			<option value="plugin-private" <?php selected( 'plugin-private', $deployment_type, true ); ?>>Private Plugin</option>
+			<option value="build-plugins-public" <?php selected( 'build-plugins-public', $deployment_type, true ); ?>>Build Plugins Public</option>
+			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>
+		</select>
+		<?php
+	}
+
+	/**
+	 * Save the deployment type to meta for the deployment instance. By default, we'll assume "theme-public".
+	 *
+	 * @param int     $post_id ID of the post being saved.
+	 * @param WP_Post $post    Post being saved.
+	 */
+	public function save_deploy_type( $post_id, $post ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['_wsuwp_deploy_type_nonce'] ) || ! wp_verify_nonce( $_POST['_wsuwp_deploy_type_nonce'], 'wsuwp-save-deploy-type' ) ) {
+			return;
+		}
+
+		if ( 'auto-draft' === $post->post_status ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['wsuwp_deploy_type'] ) || ! in_array( $_POST['wsuwp_deploy_type'], $this->allowed_deploy_types ) ) {
+			$deploy_type = 'theme-public';
+		} else {
+			$deploy_type = $_POST['wsuwp_deploy_type'];
+		}
+
+		update_post_meta( $post_id, '_deploy_type', $deploy_type );
+
+		return;
 	}
 
 	/**
