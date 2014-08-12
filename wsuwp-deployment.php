@@ -35,6 +35,7 @@ class WSU_Deployment {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
+		add_action( 'save_post', array( $this, 'save_repository_url' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save_deploy_type' ), 10, 2 );
 	}
 
@@ -227,9 +228,63 @@ class WSU_Deployment {
 			return;
 		}
 
+		add_meta_box( 'wsuwp_deploy_repository', 'Repository URL', array( $this, 'display_repository_url' ), $this->post_type_slug, 'normal' );
 		add_meta_box( 'wsuwp_deploy_type', 'Deploy Type', array( $this, 'display_deploy_type' ), $this->post_type_slug, 'normal' );
 		add_meta_box( 'wsuwp_deploy_instances', 'Deploy Instances', array( $this, 'display_deploy_instances' ), $this->post_type_slug, 'normal' );
 		add_meta_box( 'wsuwp_deploy_instance_data', 'Deploy Payload', array( $this, 'display_instance_payload' ), $this->deploy_instance_slug, 'normal' );
+	}
+
+	/**
+	 * Display a meta box for storing the repository's URL.
+	 *
+	 * @param WP_Post $post Current post data.
+	 */
+	public function display_repository_url( $post ) {
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		$repository_url = get_post_meta( $post->ID, '_repository_url', true );
+
+		if ( $repository_url ) {
+			$repository_url = esc_url( $repository_url );
+		} else {
+			$repository_url = '';
+		}
+
+		wp_nonce_field( 'wsuwp-save-repository', '_wsuwp_repository_nonce' );
+		?>
+		<label for="wsuwp_deploy_repository">Repository URL:</label>
+		<input name="wsuwp_deploy_repository" id="wsu_deploy_repository" type="text" value="<?php echo $repository_url; ?>" />
+		<?php
+	}
+
+	/**
+	 * Save a repository URL with a post for use with deployment.
+	 *
+	 * @param int     $post_id ID of the post being saved.
+	 * @param WP_Post $post    Full post object of post being saved.
+	 */
+	public function save_repository_url( $post_id, $post ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( $this->post_type_slug !== $post->post_type ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['_wsuwp_repository_nonce'] ) || ! wp_verify_nonce( $_POST['_wsuwp_repository_nonce'], 'wsuwp-save-repository' ) ) {
+			return;
+		}
+
+		if ( 'auto-draft' === $post->post_status ) {
+			return;
+		}
+
+		if ( isset( $_POST['wsuwp_deploy_repository'] ) && ! empty( trim( $_POST['wsuwp_deploy_repository'] ) ) ) {
+			update_post_meta( $post_id, '_repository_url', esc_url_raw( $_POST['wsuwp_deploy_repository'] ) );
+		}
 	}
 
 	public function display_deploy_type( $post ) {
@@ -237,7 +292,7 @@ class WSU_Deployment {
 			return;
 		}
 
-		$deployment_type = get_post_meta( get_the_ID(), '_deploy_type', true );
+		$deployment_type = get_post_meta( $post->ID, '_deploy_type', true );
 
 		// Force a deployment type from those we expect.
 		if ( ! in_array( $deployment_type, $this->allowed_deploy_types ) ) {
