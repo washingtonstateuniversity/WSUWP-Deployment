@@ -287,6 +287,11 @@ class WSU_Deployment {
 		}
 	}
 
+	/**
+	 * Store the deploy type for a deployment.
+	 *
+	 * @param WP_Post $post Current post being edited.
+	 */
 	public function display_deploy_type( $post ) {
 		if ( $this->post_type_slug !== $post->post_type ) {
 			return;
