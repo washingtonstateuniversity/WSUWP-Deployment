@@ -26,6 +26,7 @@ class WSU_Deployment {
 		'theme-public',
 		'theme-private',
 		'build-plugins-public',
+		'plugin-public',
 		'plugin-private',
 		'platform'
 	);
