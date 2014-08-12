@@ -199,7 +199,10 @@ class WSU_Deployment {
 	 * @param WP_Post $post Object containing the project being deployed.
 	 */
 	private function _handle_deploy( $tag, $post ) {
-		$tag = escapeshellarg( $tag ); // @todo we have a format we can assert
+		// Tags can only be alphanumeric with dashes and dots
+		if ( 0 === preg_match( '|^([a-zA-Z0-9-.])+$|', $tag ) ) {
+			die( 'Invalid tag format' );
+		}
 
 		$repository_directory = sanitize_key( $post->post_name );
 
