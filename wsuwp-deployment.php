@@ -195,8 +195,8 @@ class WSU_Deployment {
 	 * Hand deployment details to the relevant script on the production machine. Script
 	 * is called as:
 	 *
-	 * deploy-build.sh 0.0.1 dir-of-theme theme-public
-	 * SCRIPT ^        TAG ^ DIRECTORY ^  TYPE ^
+	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-public
+	 * SCRIPT ^        TAG ^ DIRECTORY ^        REPOSITORY URL ^                                            TYPE ^
 	 *
 	 * @param string  $tag  Tagged version being deployed.
 	 * @param WP_Post $post Object containing the project being deployed.
@@ -214,7 +214,14 @@ class WSU_Deployment {
 			$deploy_type = 'theme-public';
 		}
 
-		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $deploy_type );
+		$repository_url = get_post_meta( $post->ID, '_repository_url', true );
+		if ( false === $repository_url || empty( $repository_url ) ) {
+			return;
+		} else {
+			$repository_url = esc_url( $repository_url );
+		}
+
+		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type );
 	}
 
 	/**
