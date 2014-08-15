@@ -63,6 +63,21 @@ if [ 'theme-private' == $4 ]; then
   rm -rf "/var/repos/wsuwp-platform/build-themes/private/$2/.git"
 fi
 
+# Individual public plugins are deployed to the private build directory as they are
+# not part of the wider public repository. Public in this case indicates that the
+# repository is public.
+if [ 'plugin-public' == $4 ]; then
+  # Remove the old plugin directory if it exists.
+  if [ -d "/var/repos/wsuwp-platform/build-plugins/private/$2" ]; then
+    rm -fr "/var/repos/wsuwp-platform/build-plugins/private/$2"
+  fi
+
+  # Copy over the new plugin directory and remove its .git directory. We are
+  # unable to use rsync for this due to some restrictions on the server.
+  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/private/$2"
+  rm -rf "/var/repos/wsuwp-platform/build-themes/plugins/$2/.git"
+fi
+
 # Private plugins are deployed to the private build directory. These deploys
 # should be configured on the server first as a public key and proper SSH alias
 # configuration is necessary before this will work.
