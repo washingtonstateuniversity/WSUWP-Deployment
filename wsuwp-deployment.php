@@ -321,6 +321,7 @@ class WSU_Deployment {
 			<option value="theme-private" <?php selected( 'theme-private', $deployment_type, true ); ?>>Private Theme</option>
 			<option value="plugin-private" <?php selected( 'plugin-private', $deployment_type, true ); ?>>Private Plugin</option>
 			<option value="build-plugins-public" <?php selected( 'build-plugins-public', $deployment_type, true ); ?>>Build Plugins Public</option>
+			<option value="build-themes-public" <?php selected( 'build-themes-public', $deployment_type, true ); ?>>Build Themes Public</option>
 			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>
 		</select>
 		<?php
