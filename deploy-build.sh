@@ -19,6 +19,7 @@ cd "/var/repos/$2"
 # Checkout the project's master, fetch all changes, and then check out the
 # tag specified by the deploy request.
 unset GIT_DIR
+git checkout -- .
 git checkout master
 git fetch --all
 git checkout $1
