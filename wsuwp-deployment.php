@@ -23,8 +23,7 @@ class WSU_Deployment {
 	 * @var array List of deploy types allowed by default.
 	 */
 	var $allowed_deploy_types = array(
-		'theme-public',
-		'theme-private',
+		'theme-individual',
 		'build-plugins-public',
 		'build-themes-public',
 		'plugin-public',
@@ -310,15 +309,14 @@ class WSU_Deployment {
 
 		// Force a deployment type from those we expect.
 		if ( ! in_array( $deployment_type, $this->allowed_deploy_types ) ) {
-			$deployment_type = 'theme-public';
+			$deployment_type = 'theme-individual';
 		}
 
 		wp_nonce_field( 'wsuwp-save-deploy-type', '_wsuwp_deploy_type_nonce' );
 		?>
 		<label for="wsuwp_deploy_type">Deployment Type:</label>
 		<select name="wsuwp_deploy_type" id="wsuwp_deploy_type">
-			<option value="theme-public" <?php selected( 'theme-public', $deployment_type, true ); ?>>Public Theme</option>
-			<option value="theme-private" <?php selected( 'theme-private', $deployment_type, true ); ?>>Private Theme</option>
+			<option value="theme-individual" <?php selected( 'theme-individual', $deployment_type, true ); ?>>Individual Theme</option>
 			<option value="plugin-private" <?php selected( 'plugin-private', $deployment_type, true ); ?>>Private Plugin</option>
 			<option value="plugin-public" <?php selected( 'plugin-public', $deployment_type, true ); ?>>Public Plugin</option>
 			<option value="build-plugins-public" <?php selected( 'build-plugins-public', $deployment_type, true ); ?>>Build Plugins Public</option>
@@ -352,7 +350,7 @@ class WSU_Deployment {
 		}
 
 		if ( ! isset( $_POST['wsuwp_deploy_type'] ) || ! in_array( $_POST['wsuwp_deploy_type'], $this->allowed_deploy_types ) ) {
-			$deploy_type = 'theme-public';
+			$deploy_type = 'theme-individual';
 		} else {
 			$deploy_type = $_POST['wsuwp_deploy_type'];
 		}

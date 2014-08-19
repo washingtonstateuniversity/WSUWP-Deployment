@@ -30,37 +30,19 @@ git checkout $1
 find "/var/repos/$2" -type d -exec chmod 775 {} \;
 find "/var/repos/$2" -type f -exec chmod 664 {} \;
 
-# Our default action, a public theme being deployed by the team, requires
-# that we pull the tagged version of the theme and move it to the private
-# directory for full build and deploy. Private in this case means it is
-# not part of the collective public build of themes, but is a standalone
-# of any sort.
-if [ 'theme-public' == $4 ]; then
+# Individual themes can be private or public. All go into the individual directory
+# on the server. For private repositories, the deploy relationship should be
+# configured on the server first so that the public key is properly entered in
+# the repository's deployment settings.
+if [ 'theme-individual' == $4 ]; then
   # Remove the old theme directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-themes/private/$2" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-themes/private/$2"
+  if [ -d "/var/repos/wsuwp-platform/build-themes/individual/$2" ]; then
+    rm -fr "/var/repos/wsuwp-platform/build-themes/individual/$2"
   fi
 
-  # Copy over the new theme directory and remove its .git directory. We are
-  # unable to use rsync for this due to some restrictions on the server.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-themes/private/$2"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/private/$2/.git"
-fi
-
-# Private themes are deployed in the same way as individual public themes in
-# that they both go to the private directory. However, these deploy relationships
-# must be configured on the server first so that the public key is properly
-# entered in the repository deployment settings.
-if [ 'theme-private' == $4 ]; then
-  # Remove the old theme directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-themes/private/$2" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-themes/private/$2"
-  fi
-
-  # Copy over the new theme directory and remove its .git directory. We are
-  # unable to use rsync for this due to some restrictions on the server.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-themes/private/$2"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/private/$2/.git"
+  # Cpy over the new theme directory and remove its .git directory.
+  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-themes/individual/$2"
+  rm -rf "/var/repos/wsuwp-platform/build-themes/individual/$2/.git"
 fi
 
 # Individual public plugins are deployed to the private build directory as they are
