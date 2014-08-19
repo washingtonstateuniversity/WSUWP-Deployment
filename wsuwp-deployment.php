@@ -24,10 +24,9 @@ class WSU_Deployment {
 	 */
 	var $allowed_deploy_types = array(
 		'theme-individual',
+		'plugin-individual',
 		'build-plugins-public',
 		'build-themes-public',
-		'plugin-public',
-		'plugin-private',
 		'platform'
 	);
 
@@ -317,8 +316,7 @@ class WSU_Deployment {
 		<label for="wsuwp_deploy_type">Deployment Type:</label>
 		<select name="wsuwp_deploy_type" id="wsuwp_deploy_type">
 			<option value="theme-individual" <?php selected( 'theme-individual', $deployment_type, true ); ?>>Individual Theme</option>
-			<option value="plugin-private" <?php selected( 'plugin-private', $deployment_type, true ); ?>>Private Plugin</option>
-			<option value="plugin-public" <?php selected( 'plugin-public', $deployment_type, true ); ?>>Public Plugin</option>
+			<option value="plugin-individual" <?php selected( 'plugin-individual', $deployment_type, true ); ?>>Individual Plugin</option>
 			<option value="build-plugins-public" <?php selected( 'build-plugins-public', $deployment_type, true ); ?>>Build Plugins Public</option>
 			<option value="build-themes-public" <?php selected( 'build-themes-public', $deployment_type, true ); ?>>Build Themes Public</option>
 			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>

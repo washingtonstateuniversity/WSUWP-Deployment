@@ -45,34 +45,19 @@ if [ 'theme-individual' == $4 ]; then
   rm -rf "/var/repos/wsuwp-platform/build-themes/individual/$2/.git"
 fi
 
-# Individual public plugins are deployed to the private build directory as they are
-# not part of the wider public repository. Public in this case indicates that the
-# repository is public.
-if [ 'plugin-public' == $4 ]; then
+# Individual plugins can be private or public. All go into the individual directory
+# on the server. For private repositories, the deploy relationship should be
+# configured on the server first so that the public key is properly entered in
+# the repository's deployment settings.
+if [ 'plugin-individual' == $4 ]; then
   # Remove the old plugin directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-plugins/private/$2" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-plugins/private/$2"
+  if [ -d "/var/repos/wsuwp-platform/build-plugins/individual/$2" ]; then
+    rm -fr "/var/repos/wsuwp-platform/build-plugins/individual/$2"
   fi
 
-  # Copy over the new plugin directory and remove its .git directory. We are
-  # unable to use rsync for this due to some restrictions on the server.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/private/$2"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/plugins/$2/.git"
-fi
-
-# Private plugins are deployed to the private build directory. These deploys
-# should be configured on the server first as a public key and proper SSH alias
-# configuration is necessary before this will work.
-if [ 'plugin-private' == $4 ]; then
-  # Remove the old plugin directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-plugins/private/$2" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-plugins/private/$2"
-  fi
-
-  # Copy over the new plugin directory and remove its .git directory. We are
-  # unable to use rsync for this due to some restrictions on the server.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/private/$2"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/plugins/$2/.git"
+  # Copy over the new plugin directory and remove its .git directory.
+  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/individual/$2"
+  rm -rf "/var/repos/wsuwp-platform/build-themes/individual/$2/.git"
 fi
 
 # Our public plugins build is in a very specific place and does not follow
