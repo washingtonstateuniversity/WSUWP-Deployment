@@ -60,8 +60,8 @@ if [ 'plugin-individual' == $4 ]; then
   rm -rf "/var/repos/wsuwp-platform/build-themes/individual/$2/.git"
 fi
 
-# Our public plugins build is in a very specific place and does not follow
-# the git procedure that other actions follow.
+# Replace the entire build-plugins/public directory when deploying a new
+# version of the public plugins group.
 if [ 'build-plugins-public' == $4 ]; then
   # Remove the old public directory if it exists.
   if [ -d "/var/repos/wsuwp-platform/build-plugins/public" ]; then
@@ -71,6 +71,19 @@ if [ 'build-plugins-public' == $4 ]; then
   # Copy over the new public plugins directory and remove its .git directory.
   cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/public"
   rm -rf "/var/repos/wsuwp-platform/build-plugins/public/.git"
+fi
+
+# Replace the entire build-plugins/private directory when deploying a new
+# version of the private plugins group.
+if [ 'build-plugins-private' == $4 ]; then
+  # Remove the old public directory if it exists.
+  if [ -d "/var/repos/wsuwp-platform/build-plugins/private" ]; then
+    rm -fr "/var/repos/wsuwp-platform/build-plugins/private"
+  fi
+
+  # Copy over the new public plugins directory and remove its .git directory.
+  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/private"
+  rm -rf "/var/repos/wsuwp-platform/build-plugins/private/.git"
 fi
 
 # Our public themes build is in a very specific place and does not follow
