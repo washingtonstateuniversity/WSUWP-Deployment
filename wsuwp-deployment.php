@@ -195,7 +195,7 @@ class WSU_Deployment {
 	 * Hand deployment details to the relevant script on the production machine. Script
 	 * is called as:
 	 *
-	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-public
+	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-individual
 	 * SCRIPT ^        TAG ^ DIRECTORY ^        REPOSITORY URL ^                                            TYPE ^
 	 *
 	 * @param string  $tag  Tagged version being deployed.
@@ -211,7 +211,7 @@ class WSU_Deployment {
 
 		$deploy_type = get_post_meta( $post->ID, '_deploy_type', true );
 		if ( ! in_array( $deploy_type, $this->allowed_deploy_types ) ) {
-			$deploy_type = 'theme-public';
+			$deploy_type = 'theme-individual';
 		}
 
 		$repository_url = get_post_meta( $post->ID, '_repository_url', true );
@@ -325,7 +325,7 @@ class WSU_Deployment {
 	}
 
 	/**
-	 * Save the deployment type to meta for the deployment instance. By default, we'll assume "theme-public".
+	 * Save the deployment type to meta for the deployment instance. By default, we'll assume "theme-individual".
 	 *
 	 * @param int     $post_id ID of the post being saved.
 	 * @param WP_Post $post    Post being saved.
