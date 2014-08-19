@@ -26,7 +26,9 @@ class WSU_Deployment {
 		'theme-individual',
 		'plugin-individual',
 		'build-plugins-public',
+		'build-plugins-private',
 		'build-themes-public',
+		'build-themes-private',
 		'platform'
 	);
 
@@ -318,7 +320,9 @@ class WSU_Deployment {
 			<option value="theme-individual" <?php selected( 'theme-individual', $deployment_type, true ); ?>>Individual Theme</option>
 			<option value="plugin-individual" <?php selected( 'plugin-individual', $deployment_type, true ); ?>>Individual Plugin</option>
 			<option value="build-plugins-public" <?php selected( 'build-plugins-public', $deployment_type, true ); ?>>Build Plugins Public</option>
+			<option value="build-plugins-private" <?php selected( 'build-plugins-private', $deployment_type, true ); ?>>Build Plugins Private</option>
 			<option value="build-themes-public" <?php selected( 'build-themes-public', $deployment_type, true ); ?>>Build Themes Public</option>
+			<option value="build-themes-private" <?php selected( 'build-themes-private', $deployment_type, true ); ?>>Build Themes Private</option>
 			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>
 		</select>
 		<?php

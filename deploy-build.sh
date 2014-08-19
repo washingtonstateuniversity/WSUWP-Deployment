@@ -81,7 +81,7 @@ if [ 'build-plugins-private' == $4 ]; then
     rm -fr "/var/repos/wsuwp-platform/build-plugins/private"
   fi
 
-  # Copy over the new public plugins directory and remove its .git directory.
+  # Copy over the new private plugins directory and remove its .git directory.
   cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/private"
   rm -rf "/var/repos/wsuwp-platform/build-plugins/private/.git"
 fi
