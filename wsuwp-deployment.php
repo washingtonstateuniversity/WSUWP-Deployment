@@ -4,7 +4,7 @@ Plugin Name: WSUWP Deployment
 Plugin URI: http://web.wsu.edu
 Description: Receive deploy requests in WordPress and act accordingly.
 Author: washingtonstateuniversity, jeremyfelt
-Version: 0.3.0
+Version: 1.0.0
 */
 
 class WSU_Deployment {
