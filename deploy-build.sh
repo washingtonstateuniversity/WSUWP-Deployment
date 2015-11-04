@@ -35,14 +35,10 @@ find "/var/repos/$2" -type f -exec chmod 664 {} \;
 # configured on the server first so that the public key is properly entered in
 # the repository's deployment settings.
 if [ 'theme-individual' == $4 ]; then
-  # Remove the old theme directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-themes/individual/$2" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-themes/individual/$2"
-  fi
+  # Ensure the theme's directory exists in production.
+  mkdir -p "/var/www/wp-content/themes/$2"
 
-  # Cpy over the new theme directory and remove its .git directory.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-themes/individual/$2"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/individual/$2/.git"
+  rsync -rlgDh --delete --exclude '.git' "/var/repos/$2" "/var/www/wp-content/themes/$2"
 fi
 
 # Individual plugins can be private or public. All go into the individual directory
@@ -50,14 +46,10 @@ fi
 # configured on the server first so that the public key is properly entered in
 # the repository's deployment settings.
 if [ 'plugin-individual' == $4 ]; then
-  # Remove the old plugin directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-plugins/individual/$2" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-plugins/individual/$2"
-  fi
+  # Ensure the plugin's directory exists in production.
+  mkdir -p "/var/www/wp-content/plugins/$2"
 
-  # Copy over the new plugin directory and remove its .git directory.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/individual/$2"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/individual/$2/.git"
+  rsync -rlgDh --delete --exclude '.git' "/var/repos/$2" "/var/www/wp-content/plugins/$2"
 fi
 
 # Replace the entire build-plugins/public directory when deploying a new
