@@ -29,10 +29,8 @@ find "/var/repos/$2" -type f -exec chmod 664 {} \;
 # configured on the server first so that the public key is properly entered in
 # the repository's deployment settings.
 if [ 'theme-individual' == $4 ]; then
-  # Ensure the theme's directory exists in production.
-  mkdir -p "/var/www/wp-content/themes/$2"
-
-  rsync -rlgDh --delete --exclude '.git' "/var/repos/$2" "/var/www/wp-content/themes/$2"
+  touch "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
+  echo "$2" > "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
 fi
 
 # Individual plugins can be private or public. All go into the individual directory
@@ -40,59 +38,38 @@ fi
 # configured on the server first so that the public key is properly entered in
 # the repository's deployment settings.
 if [ 'plugin-individual' == $4 ]; then
-  # Ensure the plugin's directory exists in production.
-  mkdir -p "/var/www/wp-content/plugins/$2"
-
-  rsync -rlgDh --delete --exclude '.git' "/var/repos/$2" "/var/www/wp-content/plugins/$2"
+  touch "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
+  echo "$2" > "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
 fi
 
 # Loop through the public plugins directory and sync each individual plugin.
 if [ 'build-plugins-public' == $4 ]; then
-  for dir in `ls "/var/repos/$2"`
-  do
-    if [ -d "/var/repos/$2/$dir" ]; then
-      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/plugins/$dir"
-    fi
-  done
+  touch "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
+  echo "$2" > "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
 fi
 
 # Loop through the private plugins directory and sync each individual plugin.
 if [ 'build-plugins-private' == $4 ]; then
-  for dir in `ls "/var/repos/$2"`
-  do
-    if [ -d "/var/repos/$2/$dir" ]; then
-      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/plugins/$dir"
-    fi
-  done
+  touch "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
+  echo "$2" > "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
 fi
 
 # Loop through the public themes directory and sync each individual theme.
 if [ 'build-themes-public' == $4 ]; then
-  for dir in `ls "/var/repos/$2"`
-  do
-    if [ -d "/var/repos/$2/$dir" ]; then
-      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/themes/$dir"
-    fi
-  done
+  touch "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
+  echo "$2" > "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
 fi
 
 # Loop through the private themes directory and sync each individual theme.
 if [ 'build-themes-private' == $4 ]; then
-  for dir in `ls "/var/repos/$2"`
-  do
-    if [ -d "/var/repos/$2/$dir" ]; then
-      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/themes/$dir"
-    fi
-  done
+  touch "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
+  echo "$2" > "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
 fi
 
 # Process only the WSUWP Platform files.
 if [ 'platform' == $4 ]; then
-  rsync -rlgDh --delete --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/uploads' --exclude 'wp-content/plugins' --exclude 'wp-content/themes' /var/repos/wsuwp-platform/www/ /var/www/
+  touch "/var/repos/wsuwp-deployment/deploy_platform.txt"
+  echo "$2" > "/var/repos/wsuwp-deployment/deploy_platform.txt"
 fi
-
-deploy_date=$(date +%x%t%T%z)
-echo "$deploy_date - $2 - $3" >> /var/repos/wsuwp-deployment/prod-deployments.log
-echo "$deploy_date - $2 - $3" > /var/www/wordpress/deployed-last.txt
 
 exit 1
