@@ -2,12 +2,6 @@
 #
 # Manage the preparation for deployment of a theme via GitHub webhook.
 
-# Remove any existing deploy trigger to prevent concurrent operations in the
-# case where multiple projects are being deployed at once.
-if [ -f "/var/repos/wsuwp-deployment/deploy.json" ]; then
-  rm /var/repos/wsuwp-deployment/deploy.json
-fi
-
 # If a deployment is not yet configured, expect a third argument containing
 # the repository URL. We'll need to configure private repositories manually.
 if [ ! -d "/var/repos/$2" ]; then
