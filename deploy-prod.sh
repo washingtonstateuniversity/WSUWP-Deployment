@@ -16,7 +16,7 @@ if [ -f "/var/repos/wsuwp-deployment/deploy.json" ]; then
   find "/var/repos/wsuwp-platform/build/" -type d -exec chmod 775 {} \;
   find "/var/repos/wsuwp-platform/build/" -type f -exec chmod 664 {} \;
 
-  rsync -rlgDh --delete --exclude '.git' --exclude 'wp-config.php' --exclude 'wp-content/uploads' /var/repos/wsuwp-platform/build/ /var/www/
+  rsync -rlgDh --delete --exclude '.git' --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/uploads' /var/repos/wsuwp-platform/build/ /var/www/
 
   # Setup permissions on production files.
   chown -R www-data:www-data /var/www/wordpress
