@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Manage the preparation for deployment of a theme via GitHub webhook.
+# Manage the deployment of platform code via GitHub webhook.
 
 # If a deployment is not yet configured, expect a third argument containing
 # the repository URL. We'll need to configure private repositories manually.
