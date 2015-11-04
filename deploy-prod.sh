@@ -1,24 +1,83 @@
-#!/bin/sh
-if [ -f "/var/repos/wsuwp-deployment/deploy.json" ]; then
-  deploy_trigger=$(cat /var/repos/wsuwp-deployment/deploy.json)
-  rm /var/repos/wsuwp-deployment/deploy.json
+#!/bin/bash
+#
+# Process queued deployments on a cron schedule.
 
-  deploy_date=$(date +%x%t%T%z)
-  echo "$deploy_date - $deploy_trigger" >> /var/repos/wsuwp-deployment/prod-deployments.log
-  echo "$deploy_date - $deploy_trigger" > /var/repos/wsuwp-platform/build/wordpress/deployed-last.txt
+# Handle individual plugin deployments
+for deploy in `ls /var/repos/wsuwp-deployment/deploy_plugin-individual_*`
+do
+  repo=$(cat $deploy)
+  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
+  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
 
-  # Setup permissions before syncing files.
-  chown -R www-data:www-data /var/repos/wsuwp-platform
+  mkdir -p "/var/www/wp-content/plugins/$repo"
 
-  # Ensure all files are set to be group read/write so that our www-data and
-  # www-deploy users can handle them. This corrects possible issues in local
-  # development where elevated permissions can be set.
-  find "/var/repos/wsuwp-platform/build/" -type d -exec chmod 775 {} \;
-  find "/var/repos/wsuwp-platform/build/" -type f -exec chmod 664 {} \;
+  rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/" "/var/www/wp-content/plugins/$repo/"
 
-  rsync -rlgDh --delete --exclude '.git' --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/uploads' /var/repos/wsuwp-platform/build/ /var/www/
+  chown -R www-data:www-data "/var/www/wp-content/plugins/$repo"
+  rm "$deploy"
+done
 
-  # Setup permissions on production files.
-  chown -R www-data:www-data /var/www/wordpress
-  chown -R www-data:www-data /var/www/wp-content
-fi
+# Handle individual theme deployments
+for deploy in `ls /var/repos/wsuwp-deployment/deploy_theme-individual_*`
+do
+  repo=$(cat $deploy)
+  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
+  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
+
+  mkdir -p "/var/www/wp-content/themes/$repo"
+
+  rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/" "/var/www/wp-content/themes/$repo/"
+
+  chown -R www-data:www-data "/var/www/wp-content/themes/$repo"
+  rm "$deploy"
+done
+
+# Handle plugin collection deployments
+for deploy in `ls /var/repos/wsuwp-deployment/deploy_plugin-collection_*`
+do
+  repo=$(cat $deploy)
+  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
+  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
+
+  for dir in `ls "/var/repos/$repo"`
+  do
+    if [ -d "/var/repos/$repo/$dir" ]; then
+      mkdir -p "/var/www/wp-content/plugins/$dir"
+      rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/$dir/" "/var/www/wp-content/plugins/$dir/"
+    fi
+  done
+
+  chown -R www-data:www-data /var/www/wp-content/plugins
+  rm "$deploy"
+done
+
+# Handle theme collection deployments
+for deploy in `ls /var/repos/wsuwp-deployment/deploy_theme-collection_*`
+do
+  repo=$(cat $deploy)
+  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
+  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
+
+  for dir in `ls "/var/repos/$repo"`
+  do
+    if [ -d "/var/repos/$repo/$dir" ]; then
+      mkdir -p "/var/www/wp-content/themes/$dir"
+      rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/$dir/" "/var/www/wp-content/themes/$dir/"
+    fi
+  done
+
+  chown -R www-data:www-data /var/www/wp-content/themes
+  rm "$deploy"
+done
+
+# Handle general platform deployment
+for deploy in `ls /var/repos/wsuwp-deployment/deploy_platform.txt`
+do
+  find "/var/repos/wsuwp-platform/" -type d -exec chmod 775 {} \;
+  find "/var/repos/wsuwp-platform/" -type f -exec chmod 664 {} \;
+
+  rsync -rgvzh --delete --exclude '.git' --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/plugins' --exclude 'wp-content/themes' --exclude 'wp-content/uploads' /var/repos/wsuwp-platform/www/ /var/www/
+
+  chown -R www-data:www-data /var/www/
+  rm "$deploy"
+done
