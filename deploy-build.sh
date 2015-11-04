@@ -52,56 +52,44 @@ if [ 'plugin-individual' == $4 ]; then
   rsync -rlgDh --delete --exclude '.git' "/var/repos/$2" "/var/www/wp-content/plugins/$2"
 fi
 
-# Replace the entire build-plugins/public directory when deploying a new
-# version of the public plugins group.
+# Loop through the public plugins directory and sync each individual plugin.
 if [ 'build-plugins-public' == $4 ]; then
-  # Remove the old public directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-plugins/public" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-plugins/public"
-  fi
-
-  # Copy over the new public plugins directory and remove its .git directory.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/public"
-  rm -rf "/var/repos/wsuwp-platform/build-plugins/public/.git"
+  for dir in `ls "/var/repos/$2"`
+  do
+    if [ -d "/var/repos/$2/$dir" ]; then
+      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/plugins/$dir"
+    fi
+  done
 fi
 
-# Replace the entire build-plugins/private directory when deploying a new
-# version of the private plugins group.
+# Loop through the private plugins directory and sync each individual plugin.
 if [ 'build-plugins-private' == $4 ]; then
-  # Remove the old public directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-plugins/private" ]; then
-    rm -fr "/var/repos/wsuwp-platform/build-plugins/private"
-  fi
-
-  # Copy over the new private plugins directory and remove its .git directory.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-plugins/private"
-  rm -rf "/var/repos/wsuwp-platform/build-plugins/private/.git"
+  for dir in `ls "/var/repos/$2"`
+  do
+    if [ -d "/var/repos/$2/$dir" ]; then
+      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/plugins/$dir"
+    fi
+  done
 fi
 
-# Replace the entire build-themes/public directory when deploying a new
-# version of the public themes group.
+# Loop through the public themes directory and sync each individual theme.
 if [ 'build-themes-public' == $4 ]; then
-  # Remove the old public directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-themes/public" ]; then
-    rm -rf "/var/repos/wsuwp-platform/build-themes/public"
-  fi
-
-  # Copy over the new public themes directory and remove its .git directory.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-themes/public"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/public/.git"
+  for dir in `ls "/var/repos/$2"`
+  do
+    if [ -d "/var/repos/$2/$dir" ]; then
+      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/themes/$dir"
+    fi
+  done
 fi
 
-# Replace the entire build-themes/private directory when deploying a new
-# version of the private themes group.
+# Loop through the private themes directory and sync each individual theme.
 if [ 'build-themes-private' == $4 ]; then
-  # Remove the old private directory if it exists.
-  if [ -d "/var/repos/wsuwp-platform/build-themes/private" ]; then
-    rm -rf "/var/repos/wsuwp-platform/build-themes/private"
-  fi
-
-  # Copy over the new private themes directory and remove its .git directory.
-  cp -r "/var/repos/$2" "/var/repos/wsuwp-platform/build-themes/private"
-  rm -rf "/var/repos/wsuwp-platform/build-themes/private/.git"
+  for dir in `ls "/var/repos/$2"`
+  do
+    if [ -d "/var/repos/$2/$dir" ]; then
+      rsync -rlgDh --delete --exclude '.git' "/var/repos/$2/$dir" "/var/www/wp-content/themes/$dir"
+    fi
+  done
 fi
 
 # Build the project to prep for deployment.
