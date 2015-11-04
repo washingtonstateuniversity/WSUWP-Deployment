@@ -91,6 +91,8 @@ if [ 'platform' == $4 ]; then
   rsync -rlgDh --delete --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/uploads' --exclude 'wp-content/plugins' --exclude 'wp-content/themes' /var/repos/wsuwp-platform/www/ /var/www/
 fi
 
-chmod 664 /var/repos/wsuwp-deployment/deploy.json
+deploy_date=$(date +%x%t%T%z)
+echo "$deploy_date - $2 - $3" >> /var/repos/wsuwp-deployment/prod-deployments.log
+echo "$deploy_date - $2 - $3" > /var/www/wordpress/deployed-last.txt
 
 exit 1
