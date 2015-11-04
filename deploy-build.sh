@@ -92,20 +92,10 @@ if [ 'build-themes-private' == $4 ]; then
   done
 fi
 
-# Build the project to prep for deployment.
-cd /var/repos/wsuwp-platform/
-rm -rf /var/repos/wsuwp-platform/build
-grunt
-
-# Ensure all files are set to be group read/write so that our www-data and
-# www-deploy users can handle them. This corrects possible issues in local
-# development where elevated permissions can be set.
-find "/var/repos/wsuwp-platform/build/" -type d -exec chmod 775 {} \;
-find "/var/repos/wsuwp-platform/build/" -type f -exec chmod 664 {} \;
-
-# Tell cron that we're again ready for deploy.
-touch /var/repos/wsuwp-deployment/deploy.json
-echo "$2 $1" > /var/repos/wsuwp-deployment/deploy.json
+# Process only the WSUWP Platform files.
+if [ 'platform' == $4 ]; then
+  rsync -rlgDh --delete --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/uploads' --exclude 'wp-content/plugins' --exclude 'wp-content/themes' /var/repos/wsuwp-platform/www/ /var/www/
+fi
 
 chmod 664 /var/repos/wsuwp-deployment/deploy.json
 
