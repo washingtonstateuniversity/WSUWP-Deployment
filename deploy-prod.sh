@@ -15,6 +15,9 @@ do
 
   chown -R www-data:www-data "/var/www/wp-content/plugins/$repo"
   rm "$deploy"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$repo has just been deployed.\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
 done
 
 # Handle individual theme deployments
@@ -30,6 +33,9 @@ do
 
   chown -R www-data:www-data "/var/www/wp-content/themes/$repo"
   rm "$deploy"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$repo has just been deployed.\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
 done
 
 # Handle plugin collection deployments
@@ -49,6 +55,9 @@ do
 
   chown -R www-data:www-data /var/www/wp-content/plugins
   rm "$deploy"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$repo has just been deployed.\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
 done
 
 # Handle theme collection deployments
@@ -68,6 +77,9 @@ do
 
   chown -R www-data:www-data /var/www/wp-content/themes
   rm "$deploy"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$repo has just been deployed.\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
 done
 
 # Handle general platform deployment
@@ -80,4 +92,7 @@ do
 
   chown -R www-data:www-data /var/www/
   rm "$deploy"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$repo has just been deployed.\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
 done
