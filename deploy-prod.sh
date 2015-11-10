@@ -98,7 +98,7 @@ do
   chown -R www-data:www-data /var/www/wp-content/themes/
 
   rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$repo has just been deployed.\", \"icon_emoji\": \":rocket:\"}'"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"WSUWP Platform has just been deployed.\", \"icon_emoji\": \":rocket:\"}'"
   slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
   eval $slack_command
 done
