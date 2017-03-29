@@ -1,6 +1,10 @@
 #!/bin/bash
 #
 # Manage the deployment of platform code via GitHub webhook.
+if [ $# -ne 4 ]; then
+    echo "This script expects 4 arguments."
+    exit 1;
+fi
 
 # If a deployment is not yet configured, expect a third argument containing
 # the repository URL. We'll need to configure private repositories manually.
