@@ -1,6 +1,11 @@
 #!/bin/bash
 #
 # Manage the deployment of platform code via GitHub webhook.
+#
+# Note: For private repositories, the deploy relationships should be configured
+# on the server first so that the public key is properly entered in the
+# repository's deployment settings.
+
 if [ $# -ne 4 ]; then
     echo "This script expects 4 arguments."
     exit 1;
@@ -30,35 +35,19 @@ find "/var/repos/$2" -type f -exec chmod 664 {} \;
 
 # Individual plugins, mu-plugins, and themes are all deployed the same way
 # and can be private or public repositories.
-#
-# For private repositories, the deploy relationships should be configured
-# on the server first so that the public key is properly entered in the
-# repository's deployment settings.
 if [ 'theme-individual' == $4 ] || [ 'plugin-individual' == $4 ] || [ 'mu-plugin-individual' == $4 ]; then
   touch "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
   echo "$2" > "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
 fi
 
-# Loop through the public plugins directory and sync each individual plugin.
-if [ 'build-plugins-public' == $4 ]; then
+# Private and public collections of plugins are deployed in the same way.
+if [ 'build-plugins-private' == $4 ] || [ 'build-plugins-public' == $4 ]; then
   touch "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
   echo "$2" > "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
 fi
 
-# Loop through the private plugins directory and sync each individual plugin.
-if [ 'build-plugins-private' == $4 ]; then
-  touch "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
-  echo "$2" > "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
-fi
-
-# Loop through the public themes directory and sync each individual theme.
-if [ 'build-themes-public' == $4 ]; then
-  touch "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
-  echo "$2" > "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
-fi
-
-# Loop through the private themes directory and sync each individual theme.
-if [ 'build-themes-private' == $4 ]; then
+# Private and public collections of themes are deployed in the same way.
+if [ 'build-themes-private' == $4 ] || [ 'build-themes-public' == $4 ]; then
   touch "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
   echo "$2" > "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
 fi
