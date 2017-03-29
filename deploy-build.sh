@@ -28,20 +28,13 @@ git checkout $1
 find "/var/repos/$2" -type d -exec chmod 775 {} \;
 find "/var/repos/$2" -type f -exec chmod 664 {} \;
 
-# Individual themes can be private or public. All go into the individual directory
-# on the server. For private repositories, the deploy relationship should be
-# configured on the server first so that the public key is properly entered in
-# the repository's deployment settings.
-if [ 'theme-individual' == $4 ]; then
-  touch "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
-  echo "$2" > "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
-fi
-
-# Individual plugins can be private or public. All go into the individual directory
-# on the server. For private repositories, the deploy relationship should be
-# configured on the server first so that the public key is properly entered in
-# the repository's deployment settings.
-if [ 'plugin-individual' == $4 ]; then
+# Individual plugins, mu-plugins, and themes are all deployed the same way
+# and can be private or public repositories.
+#
+# For private repositories, the deploy relationships should be configured
+# on the server first so that the public key is properly entered in the
+# repository's deployment settings.
+if [ 'theme-individual' == $4 ] || [ 'plugin-individual' == $4 ] || [ 'mu-plugin-individual' == $4 ]; then
   touch "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
   echo "$2" > "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
 fi
