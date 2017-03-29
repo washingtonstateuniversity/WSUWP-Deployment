@@ -58,4 +58,12 @@ if [ 'platform' == $4 ]; then
   echo "$2" > "/var/repos/wsuwp-deployment/deploy_platform.txt"
 fi
 
+# When this deployment repository is deployed, replace the build scripts
+# with the latest versions and ensure they remain executable.
+if [ 'wsuwp-deployment' == $2 ]; then
+  cp -f "/var/repos/wsuwp-deployment/deploy-build.sh" "/var/repos/deploy-build.sh"
+  cp -f "/var/repos/wsuwp-deployment/deploy-prod.sh" "/var/repos/deploy-prod.sh"
+  chmod 775 "/var/repos/deploy-build.sh"
+  chmod 775 "/var/repos/deploy-prod.sh"
+fi
 exit 1

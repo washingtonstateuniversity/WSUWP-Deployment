@@ -243,7 +243,7 @@ class WSUWP_Deployment {
 			$repository_url = esc_url( $repository_url );
 		}
 
-		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type ); // @codingStandardsIgnoreLine
+		shell_exec( 'sh /var/repos/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type ); // @codingStandardsIgnoreLine
 	}
 
 	/**
