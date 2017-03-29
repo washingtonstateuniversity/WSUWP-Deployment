@@ -5,24 +5,24 @@ class WSUWP_Deployment {
 	/**
 	 * @var string Slug to track the deployment post type.
 	 */
-	var $post_type_slug = 'wsuwp_deployment';
+	public $post_type_slug = 'wsuwp_deployment';
 
 	/**
 	 * @var string Slug to track deployment instances in a post type.
 	 */
-	var $deploy_instance_slug = 'wsuwp_depinstance';
+	public $deploy_instance_slug = 'wsuwp_depinstance';
 
 	/**
 	 * @var array List of deploy types allowed by default.
 	 */
-	var $allowed_deploy_types = array(
+	public $allowed_deploy_types = array(
 		'theme-individual',
 		'plugin-individual',
 		'build-plugins-public',
 		'build-plugins-private',
 		'build-themes-public',
 		'build-themes-private',
-		'platform'
+		'platform',
 	);
 
 	/**
@@ -93,10 +93,12 @@ class WSUWP_Deployment {
 			'show_ui'            => true,
 			'show_in_menu'       => true,
 			'query_var'          => true,
-			'rewrite'            => array( 'slug' => 'deployment' ),
+			'rewrite'            => array(
+				'slug' => 'deployment',
+			),
 			'has_archive'        => false,
 			'hierarchical'       => false,
-			'supports'           => array( 'title', ),
+			'supports'           => array( 'title' ),
 		);
 		register_post_type( $this->post_type_slug, $args );
 
@@ -120,10 +122,12 @@ class WSUWP_Deployment {
 			'public'             => false,
 			'publicly_queryable' => false,
 			'show_ui'            => true,
-			'rewrite'            => array( 'slug' => 'deployment-instance' ),
+			'rewrite'            => array(
+				'slug' => 'deployment-instance',
+			),
 			'has_archive'        => false,
 			'hierarchical'       => false,
-			'supports'           => array( 'title', ),
+			'supports'           => array( 'title' ),
 		);
 		register_post_type( $this->deploy_instance_slug, $instance_args );
 
@@ -140,7 +144,7 @@ class WSUWP_Deployment {
 			return;
 		}
 
-		if ( isset( $_SERVER[ 'HTTP_X_GITHUB_EVENT' ] ) && 'create' === $_SERVER[ 'HTTP_X_GITHUB_EVENT' ] && ! empty( $_POST['payload'] ) ) {
+		if ( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'create' === $_SERVER['HTTP_X_GITHUB_EVENT'] && ! empty( $_POST['payload'] ) ) {
 			$this->_handle_create_webhook();
 		} elseif ( ! isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) ) {
 			wp_safe_redirect( home_url() );
@@ -189,7 +193,7 @@ class WSUWP_Deployment {
 		$time = time();
 
 		// Build the deployment instance.
-		$title = date( 'Y-m-d H:i:s', $time ) . ' | ' . esc_html( $deployment->post_title ) . ' | ' . esc_html( $deployment_data[ 'tag'] ) . ' | ' . esc_html( $deployment_data['sender'] );
+		$title = date( 'Y-m-d H:i:s', $time ) . ' | ' . esc_html( $deployment->post_title ) . ' | ' . esc_html( $deployment_data['tag'] ) . ' | ' . esc_html( $deployment_data['sender'] );
 		$args = array(
 			'post_type' => $this->deploy_instance_slug,
 			'post_title' => $title,
@@ -230,7 +234,7 @@ class WSUWP_Deployment {
 		$repository_directory = sanitize_key( $post->post_name );
 
 		$deploy_type = get_post_meta( $post->ID, '_deploy_type', true );
-		if ( ! in_array( $deploy_type, $this->allowed_deploy_types ) ) {
+		if ( ! in_array( $deploy_type, $this->allowed_deploy_types, true ) ) {
 			$deploy_type = 'theme-individual';
 		}
 
@@ -241,7 +245,7 @@ class WSUWP_Deployment {
 			$repository_url = esc_url( $repository_url );
 		}
 
-		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type );
+		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type ); // @codingStandardsIgnoreLine
 	}
 
 	/**
@@ -273,16 +277,14 @@ class WSUWP_Deployment {
 
 		$repository_url = get_post_meta( $post->ID, '_repository_url', true );
 
-		if ( $repository_url ) {
-			$repository_url = esc_url( $repository_url );
-		} else {
+		if ( ! $repository_url ) {
 			$repository_url = '';
 		}
 
 		wp_nonce_field( 'wsuwp-save-repository', '_wsuwp_repository_nonce' );
 		?>
 		<label for="wsuwp_deploy_repository">Repository URL:</label>
-		<input name="wsuwp_deploy_repository" id="wsu_deploy_repository" type="text" value="<?php echo $repository_url; ?>" />
+		<input name="wsuwp_deploy_repository" id="wsu_deploy_repository" type="text" value="<?php echo esc_attr( $repository_url ); ?>" />
 		<?php
 	}
 
@@ -327,7 +329,7 @@ class WSUWP_Deployment {
 		$deployment_type = get_post_meta( $post->ID, '_deploy_type', true );
 
 		// Force a deployment type from those we expect.
-		if ( ! in_array( $deployment_type, $this->allowed_deploy_types ) ) {
+		if ( ! in_array( $deployment_type, $this->allowed_deploy_types, true ) ) {
 			$deployment_type = 'theme-individual';
 		}
 
@@ -369,15 +371,13 @@ class WSUWP_Deployment {
 			return;
 		}
 
-		if ( ! isset( $_POST['wsuwp_deploy_type'] ) || ! in_array( $_POST['wsuwp_deploy_type'], $this->allowed_deploy_types ) ) {
+		if ( ! isset( $_POST['wsuwp_deploy_type'] ) || ! in_array( $_POST['wsuwp_deploy_type'], $this->allowed_deploy_types, true ) ) {
 			$deploy_type = 'theme-individual';
 		} else {
 			$deploy_type = $_POST['wsuwp_deploy_type'];
 		}
 
 		update_post_meta( $post_id, '_deploy_type', $deploy_type );
-
-		return;
 	}
 
 	/**
@@ -403,7 +403,7 @@ class WSUWP_Deployment {
 					$deploy_tag = $deploy_data['tag'];
 				}
 
-				echo '<li>' . date( 'Y-m-d H:i:s', $time ) . ' | <a href="' . esc_html( admin_url( 'post.php?post=' . absint( $instance_id ) . '&action=edit') ) . '">' . esc_html( $deploy_tag ) . '</a></li>';
+				echo '<li>' . esc_html( date( 'Y-m-d H:i:s', $time ) ) . ' | <a href="' . esc_html( admin_url( 'post.php?post=' . absint( $instance_id ) . '&action=edit' ) ) . '">' . esc_html( $deploy_tag ) . '</a></li>';
 			}
 			echo '<ul>';
 		}
