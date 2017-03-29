@@ -20,6 +20,24 @@ do
   eval $slack_command
 done
 
+# Handle individual MU plugin deployments
+for deploy in `ls /var/repos/wsuwp-deployment/deploy_mu-plugin-individual_*`
+do
+  repo=$(cat $deploy)
+  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
+  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
+
+  mkdir -p "/var/www/wp-content/mu-plugins/$repo"
+
+  rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/" "/var/www/wp-content/mu-plugins/$repo/"
+
+  chown -R www-data:www-data "/var/www/wp-content/mu-plugins/$repo"
+  rm "$deploy"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo mu-plugin repository has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
+done
+
 # Handle individual theme deployments
 for deploy in `ls /var/repos/wsuwp-deployment/deploy_theme-individual_*`
 do
