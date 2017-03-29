@@ -142,7 +142,7 @@ class WSUWP_Deployment {
 			return;
 		}
 
-		if ( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'create' === $_SERVER['HTTP_X_GITHUB_EVENT'] && ! empty( $_POST['payload'] ) ) {
+		if ( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'create' === $_SERVER['HTTP_X_GITHUB_EVENT'] && ! empty( $_POST['payload'] ) ) { // @codingStandardsIgnoreLine
 			$this->_handle_create_webhook();
 		} elseif ( ! isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) ) {
 			wp_safe_redirect( home_url() );
@@ -156,7 +156,7 @@ class WSUWP_Deployment {
 	 */
 	private function _handle_create_webhook() {
 		// This seems overkill, but it is working.
-		$payload = wp_unslash( $_POST['payload'] );
+		$payload = wp_unslash( $_POST['payload'] ); // @codingStandardsIgnoreLine
 		$payload = maybe_serialize( $payload );
 		$payload = maybe_unserialize( $payload );
 		$payload = json_decode( $payload );
