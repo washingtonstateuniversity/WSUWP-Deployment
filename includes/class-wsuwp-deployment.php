@@ -64,10 +64,8 @@ class WSUWP_Deployment {
 	 * the deployments that have been created and then initiated.
 	 */
 	public function register_post_type() {
-		global $blog_id, $site_id;
-
-		// Only enable this on the network's primary site.
-		if ( 1 != $blog_id || 1 != $site_id ) {
+		// Only register the post type on the main network's main site.
+		if ( ! is_main_network() || ! is_main_site() ) {
 			return;
 		}
 
