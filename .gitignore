@@ -15,3 +15,7 @@
 
 # Ignore log file created during deployment.
 /prod-deployments.log
+
+# Ignore files added with composer.
+/vendor
+composer.lock
