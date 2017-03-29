@@ -26,9 +26,34 @@ class WSUWP_Deployment {
 	);
 
 	/**
-	 * Add hooks.
+	 * @var WSUWP_Deployment
+	 *
+	 * @since 1.2.0
 	 */
-	public function __construct() {
+	private static $instance;
+
+	/**
+	 * Maintain and return the one instance. Initiate hooks when
+	 * called the first time.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return \WSUWP_Deployment
+	 */
+	public static function get_instance() {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new WSUWP_Deployment();
+			self::$instance->setup_hooks();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Add hooks.
+	 *
+	 * @since 1.2.0
+	 */
+	public function setup_hooks() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'save_post', array( $this, 'save_repository_url' ), 10, 2 );
 		add_action( 'save_post', array( $this, 'save_deploy_type' ), 10, 2 );
@@ -405,4 +430,3 @@ class WSUWP_Deployment {
 		}
 	}
 }
-new WSU_Deployment();
