@@ -23,6 +23,7 @@ class WSUWP_Deployment {
 		'build-plugins-private',
 		'build-themes-public',
 		'build-themes-private',
+		'mu-plugin-collection',
 		'platform',
 	);
 
@@ -359,6 +360,7 @@ class WSUWP_Deployment {
 			<option value="build-plugins-private" <?php selected( 'build-plugins-private', $deployment_type, true ); ?>>Build Plugins Private</option>
 			<option value="build-themes-public" <?php selected( 'build-themes-public', $deployment_type, true ); ?>>Build Themes Public</option>
 			<option value="build-themes-private" <?php selected( 'build-themes-private', $deployment_type, true ); ?>>Build Themes Private</option>
+			<option value="mu-plugin-collection" <?php selected( 'mu-plugin-collection', $deployment_type, true ); ?>>MU Plugin Collection</option>
 			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>
 		</select>
 		<br />

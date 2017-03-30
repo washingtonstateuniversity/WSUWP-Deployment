@@ -67,6 +67,12 @@ if [ 'theme-individual' == $4 ] || [ 'plugin-individual' == $4 ] || [ 'mu-plugin
   echo "$2" > "/var/repos/deploy_$4_$2.txt"
 fi
 
+# MU plugin collections are deployed in only a public way.
+if [ 'mu-plugin-collection' == $4 ]; then
+  touch "/var/repos/deploy_mu-plugin-collection_$2.txt"
+  echo "$2" > "/var/repos/deploy_mu-plugin-collection_$2.txt"
+fi
+
 # Private and public collections of plugins are deployed in the same way.
 if [ 'build-plugins-private' == $4 ] || [ 'build-plugins-public' == $4 ]; then
   touch "/var/repos/deploy_plugin-collection_$2.txt"
