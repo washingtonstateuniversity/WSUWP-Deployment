@@ -57,26 +57,26 @@ find "/var/repos/$2" -type f -exec chmod 664 {} \;
 # Individual plugins, mu-plugins, and themes are all deployed the same way
 # and can be private or public repositories.
 if [ 'theme-individual' == $4 ] || [ 'plugin-individual' == $4 ] || [ 'mu-plugin-individual' == $4 ]; then
-  touch "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
-  echo "$2" > "/var/repos/wsuwp-deployment/deploy_$4_$2.txt"
+  touch "/var/repos/deploy_$4_$2.txt"
+  echo "$2" > "/var/repos/deploy_$4_$2.txt"
 fi
 
 # Private and public collections of plugins are deployed in the same way.
 if [ 'build-plugins-private' == $4 ] || [ 'build-plugins-public' == $4 ]; then
-  touch "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
-  echo "$2" > "/var/repos/wsuwp-deployment/deploy_plugin-collection_$2.txt"
+  touch "/var/repos/deploy_plugin-collection_$2.txt"
+  echo "$2" > "/var/repos/deploy_plugin-collection_$2.txt"
 fi
 
 # Private and public collections of themes are deployed in the same way.
 if [ 'build-themes-private' == $4 ] || [ 'build-themes-public' == $4 ]; then
-  touch "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
-  echo "$2" > "/var/repos/wsuwp-deployment/deploy_theme-collection_$2.txt"
+  touch "/var/repos/deploy_theme-collection_$2.txt"
+  echo "$2" > "/var/repos/deploy_theme-collection_$2.txt"
 fi
 
 # Process only the WSUWP Platform files.
 if [ 'platform' == $4 ]; then
-  touch "/var/repos/wsuwp-deployment/deploy_platform.txt"
-  echo "$2" > "/var/repos/wsuwp-deployment/deploy_platform.txt"
+  touch "/var/repos/deploy_platform.txt"
+  echo "$2" > "/var/repos/deploy_platform.txt"
 fi
 
 # When this deployment repository is deployed, replace the build scripts

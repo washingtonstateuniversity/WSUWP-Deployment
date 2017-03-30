@@ -3,7 +3,7 @@
 # Process queued deployments on a cron schedule.
 
 # Handle individual plugin deployments
-for deploy in `ls /var/repos/wsuwp-deployment/deploy_plugin-individual_*`
+for deploy in `ls /var/repos/deploy_plugin-individual_*`
 do
   repo=$(cat $deploy)
   find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
@@ -21,7 +21,7 @@ do
 done
 
 # Handle individual MU plugin deployments
-for deploy in `ls /var/repos/wsuwp-deployment/deploy_mu-plugin-individual_*`
+for deploy in `ls /var/repos/deploy_mu-plugin-individual_*`
 do
   repo=$(cat $deploy)
   find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
@@ -39,7 +39,7 @@ do
 done
 
 # Handle individual theme deployments
-for deploy in `ls /var/repos/wsuwp-deployment/deploy_theme-individual_*`
+for deploy in `ls /var/repos/deploy_theme-individual_*`
 do
   repo=$(cat $deploy)
   find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
@@ -57,7 +57,7 @@ do
 done
 
 # Handle plugin collection deployments
-for deploy in `ls /var/repos/wsuwp-deployment/deploy_plugin-collection_*`
+for deploy in `ls /var/repos/deploy_plugin-collection_*`
 do
   repo=$(cat $deploy)
   find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
@@ -79,7 +79,7 @@ do
 done
 
 # Handle theme collection deployments
-for deploy in `ls /var/repos/wsuwp-deployment/deploy_theme-collection_*`
+for deploy in `ls /var/repos/deploy_theme-collection_*`
 do
   repo=$(cat $deploy)
   find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
@@ -101,7 +101,7 @@ do
 done
 
 # Handle general platform deployment
-for deploy in `ls /var/repos/wsuwp-deployment/deploy_platform.txt`
+for deploy in `ls /var/repos/deploy_platform.txt`
 do
   find "/var/repos/wsuwp-platform/" -type d -exec chmod 775 {} \;
   find "/var/repos/wsuwp-platform/" -type f -exec chmod 664 {} \;
