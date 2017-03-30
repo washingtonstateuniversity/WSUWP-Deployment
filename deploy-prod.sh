@@ -106,7 +106,7 @@ do
   find "/var/repos/wsuwp-platform/" -type d -exec chmod 775 {} \;
   find "/var/repos/wsuwp-platform/" -type f -exec chmod 664 {} \;
 
-  rsync -rgvzh --delete --exclude '.git' --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/plugins' --exclude 'wp-content/themes' --exclude 'wp-content/uploads' /var/repos/wsuwp-platform/www/ /var/www/
+  rsync -rgvzh --delete --exclude '.git' --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/mu-plugins/*/***' --exclude 'wp-content/plugins/' --exclude 'wp-content/themes/' --exclude 'wp-content/uploads/' /var/repos/wsuwp-platform/www/ /var/www/
 
   chown -R www-data:www-data /var/www/*.php
   chown -R www-data:www-data /var/www/wordpress/
