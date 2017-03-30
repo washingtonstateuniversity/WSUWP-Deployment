@@ -18,6 +18,7 @@ class WSUWP_Deployment {
 	public $allowed_deploy_types = array(
 		'theme-individual',
 		'plugin-individual',
+		'mu-plugin-individual',
 		'build-plugins-public',
 		'build-plugins-private',
 		'build-themes-public',
@@ -243,7 +244,7 @@ class WSUWP_Deployment {
 			$repository_url = esc_url( $repository_url );
 		}
 
-		shell_exec( 'sh /var/repos/wsuwp-deployment/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type ); // @codingStandardsIgnoreLine
+		shell_exec( 'sh /var/repos/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type ); // @codingStandardsIgnoreLine
 	}
 
 	/**
@@ -337,6 +338,7 @@ class WSUWP_Deployment {
 		<select name="wsuwp_deploy_type" id="wsuwp_deploy_type">
 			<option value="theme-individual" <?php selected( 'theme-individual', $deployment_type, true ); ?>>Individual Theme</option>
 			<option value="plugin-individual" <?php selected( 'plugin-individual', $deployment_type, true ); ?>>Individual Plugin</option>
+			<option value="mu-plugin-individual" <?php selected( 'mu-plugin-individual', $deployment_type, true ); ?>>Individual MU Plugin</option>
 			<option value="build-plugins-public" <?php selected( 'build-plugins-public', $deployment_type, true ); ?>>Build Plugins Public</option>
 			<option value="build-plugins-private" <?php selected( 'build-plugins-private', $deployment_type, true ); ?>>Build Plugins Private</option>
 			<option value="build-themes-public" <?php selected( 'build-themes-public', $deployment_type, true ); ?>>Build Themes Public</option>
