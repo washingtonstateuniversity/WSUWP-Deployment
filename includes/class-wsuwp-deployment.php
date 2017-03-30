@@ -218,8 +218,8 @@ class WSUWP_Deployment {
 	 * Hand deployment details to the relevant script on the production machine. Script
 	 * is called as:
 	 *
-	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-individual
-	 * SCRIPT ^        TAG ^ DIRECTORY ^        REPOSITORY URL ^                                            TYPE ^
+	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-individual public
+	 * SCRIPT ^        TAG ^ DIRECTORY ^        REPOSITORY URL ^                                            TYPE ^           PUBLIC ^
 	 *
 	 * @param string  $tag  Tagged version being deployed.
 	 * @param WP_Post $post Object containing the project being deployed.
@@ -237,6 +237,11 @@ class WSUWP_Deployment {
 			$deploy_type = 'theme-individual';
 		}
 
+		$deploy_public = get_post_meta( $post->ID, '_deploy_public', true );
+		if ( 'private' !== $deploy_public ) {
+			$deploy_public = 'public';
+		}
+
 		$repository_url = get_post_meta( $post->ID, '_repository_url', true );
 		if ( false === $repository_url || empty( $repository_url ) ) {
 			return;
@@ -244,7 +249,7 @@ class WSUWP_Deployment {
 			$repository_url = esc_url( $repository_url );
 		}
 
-		shell_exec( 'sh /var/repos/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type ); // @codingStandardsIgnoreLine
+		shell_exec( 'sh /var/repos/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type . ' ' . $deploy_public ); // @codingStandardsIgnoreLine
 	}
 
 	/**
@@ -326,10 +331,15 @@ class WSUWP_Deployment {
 		}
 
 		$deployment_type = get_post_meta( $post->ID, '_deploy_type', true );
+		$deployment_public = get_post_meta( $post->ID, '_deploy_public', true );
 
 		// Force a deployment type from those we expect.
 		if ( ! in_array( $deployment_type, $this->allowed_deploy_types, true ) ) {
 			$deployment_type = 'theme-individual';
+		}
+
+		if ( 'private' !== $deployment_public ) {
+			$deployment_public = 'public';
 		}
 
 		wp_nonce_field( 'wsuwp-save-deploy-type', '_wsuwp_deploy_type_nonce' );
@@ -344,6 +354,12 @@ class WSUWP_Deployment {
 			<option value="build-themes-public" <?php selected( 'build-themes-public', $deployment_type, true ); ?>>Build Themes Public</option>
 			<option value="build-themes-private" <?php selected( 'build-themes-private', $deployment_type, true ); ?>>Build Themes Private</option>
 			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>
+		</select>
+
+		<label for="wsuwp_deploy_public">Repository Type</label>
+		<select name="wsuwp_deploy_public" id="wsuwp_deploy_public">
+			<option value="public" <?php selected( 'public', $deployment_public, true ); ?>>Public</option>
+			<option value="private" <?php selected( 'private', $deployment_public, true ); ?>>Private</option>
 		</select>
 		<?php
 	}
@@ -377,7 +393,14 @@ class WSUWP_Deployment {
 			$deploy_type = $_POST['wsuwp_deploy_type'];
 		}
 
+		if ( ! isset( $_POST['wsuwp_deploy_public'] ) || 'private' !== $_POST['wsuwp_deploy_public'] ) {
+			$deploy_public = 'public';
+		} else {
+			$deploy_public = 'private';
+		}
+
 		update_post_meta( $post_id, '_deploy_type', $deploy_type );
+		update_post_meta( $post_id, '_deploy_public', $deploy_public );
 	}
 
 	/**
