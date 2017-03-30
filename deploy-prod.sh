@@ -56,6 +56,28 @@ do
   eval $slack_command
 done
 
+# Handle MU plugin collection deployments
+for deploy in `ls /var/repos/deploy_mu-plugin-collection_*`
+do
+  repo=$(cat $deploy)
+  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
+  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
+
+  for dir in `ls "/var/repos/$repo"`
+  do
+    if [ -d "/var/repos/$repo/$dir" ]; then
+      mkdir -p "/var/www/wp-content/mu-plugins/$dir"
+      rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/$dir/" "/var/www/wp-content/mu-plugins/$dir/"
+    fi
+  done
+
+  chown -R www-data:www-data /var/www/wp-content/mu-plugins
+  rm "$deploy"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo MU plugin collection has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
+done
+
 # Handle plugin collection deployments
 for deploy in `ls /var/repos/deploy_plugin-collection_*`
 do
