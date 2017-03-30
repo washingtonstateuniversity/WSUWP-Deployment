@@ -42,7 +42,7 @@ fi
 
 if [ 'public' == $5 ]; then
   cd /var/repos/
-  wget $3 -O "$2.tar.gz"
+  wget --quiet $3 -O "$2.tar.gz"
 
   if [ ! -s "$2.tar.gz" ]; then
     echo "Download of $3 failed."
