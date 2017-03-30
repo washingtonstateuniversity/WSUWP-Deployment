@@ -6,26 +6,47 @@
 # on the server first so that the public key is properly entered in the
 # repository's deployment settings.
 
-if [ $# -ne 4 ]; then
-    echo "This script expects 4 arguments."
-    exit 1;
+# Expected arguments:
+#   $1 The tag to deploy, formated as #.#.#
+#   $2 The directory slug
+#   $3 The GitHub URL to the repository or tar file
+#   $4 The type of deployment.
+#   $5 Whether the repository is "public" or "private".
+if [ $# -ne 5 ]; then
+  echo "This script expects 5 arguments."
+  exit 1;
 fi
 
-# If a deployment is not yet configured, expect a third argument containing
-# the repository URL. We'll need to configure private repositories manually.
-if [ ! -d "/var/repos/$2" ]; then
-  cd /var/repos/
-  git clone $3 $2
+# Public repositories should start with a clean slate for every deployment. Remove
+# an existing directory if it is found.
+if [ 'public' == $5 ] && [ -d "/var/repos/$2" ]; then
+  rm -rf "/var/repos/$2"
 fi
-cd "/var/repos/$2"
+
+# Private repositories must be preconfigured on the server.
+if [ 'private' == $5 ] && [ ! -d "/var/repos/$2" ]; then
+  echo "An existing private repository was not found."
+  exit 1;
+fi
 
 # Checkout the project's master, fetch all changes, and then check out the
 # tag specified by the deploy request.
-unset GIT_DIR
-git checkout -- .
-git checkout master
-git fetch --all
-git checkout $1
+if [ 'private' == $5 ]; then
+  cd "/var/repos/$2"
+  unset GIT_DIR
+  git checkout -- .
+  git checkout master
+  git fetch --all
+  git checkout $1
+fi
+
+if [ 'public' == $5 ]; then
+  mkdir "/var/repos/$2";
+  wget $3 -O "$2.tar.gz"
+  gzip -d "$2.tar.gz"
+  tar -xvf "$2.tar" -C $2 --strip-components 1
+  rm $2.tar
+fi
 
 # Ensure all files are set to be group read/write so that our www-data and
 # www-deploy users can handle them. This corrects possible issues in local
