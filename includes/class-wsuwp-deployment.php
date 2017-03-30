@@ -361,7 +361,7 @@ class WSUWP_Deployment {
 			<option value="build-themes-private" <?php selected( 'build-themes-private', $deployment_type, true ); ?>>Build Themes Private</option>
 			<option value="platform" <?php selected( 'platform', $deployment_type, true ); ?>>Platform</option>
 		</select>
-
+		<br />
 		<label for="wsuwp_deploy_public">Repository Type</label>
 		<select name="wsuwp_deploy_public" id="wsuwp_deploy_public">
 			<option value="public" <?php selected( 'public', $deployment_public, true ); ?>>Public</option>
