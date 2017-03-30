@@ -249,6 +249,12 @@ class WSUWP_Deployment {
 			$repository_url = esc_url( $repository_url );
 		}
 
+		if ( 'public' === $deploy_public ) {
+			// Remove .git from any existing repository URLs.
+			$repository_url = str_replace( '.git', '', $repository_url );
+			$repository_url = trailingslashit( $repository_url ) . 'archive/' . $tag . '.tar.gz';
+		}
+
 		shell_exec( 'sh /var/repos/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type . ' ' . $deploy_public ); // @codingStandardsIgnoreLine
 	}
 
