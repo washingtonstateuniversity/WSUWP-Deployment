@@ -30,7 +30,7 @@ class WSUWP_Deployment {
 	/**
 	 * @var WSUWP_Deployment
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 */
 	private static $instance;
 
@@ -38,7 +38,7 @@ class WSUWP_Deployment {
 	 * Maintain and return the one instance. Initiate hooks when
 	 * called the first time.
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 *
 	 * @return \WSUWP_Deployment
 	 */
@@ -53,7 +53,7 @@ class WSUWP_Deployment {
 	/**
 	 * Add hooks.
 	 *
-	 * @since 1.2.0
+	 * @since 2.0.0
 	 */
 	public function setup_hooks() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
@@ -218,6 +218,8 @@ class WSUWP_Deployment {
 	/**
 	 * Hand deployment details to the relevant script on the production machine. Script
 	 * is called as:
+	 *
+	 * @since 2.0.0 Differentiate between public and private deployments.
 	 *
 	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-individual public
 	 * SCRIPT ^        TAG ^ DIRECTORY ^        REPOSITORY URL ^                                            TYPE ^           PUBLIC ^
