@@ -41,6 +41,7 @@ if [ 'private' == $5 ]; then
 fi
 
 if [ 'public' == $5 ]; then
+  cd /var/repos/
   wget $3 -O "$2.tar.gz"
 
   if [ ! -s "$2.tar.gz" ]; then
