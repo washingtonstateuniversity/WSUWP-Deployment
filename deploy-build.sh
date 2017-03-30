@@ -41,8 +41,14 @@ if [ 'private' == $5 ]; then
 fi
 
 if [ 'public' == $5 ]; then
-  mkdir "/var/repos/$2";
   wget $3 -O "$2.tar.gz"
+
+  if [ ! -s "$2.tar.gz" ]; then
+    echo "Download of $3 failed."
+    exit 1;
+  fi
+
+  mkdir "/var/repos/$2";
   gzip -d "$2.tar.gz"
   tar -xvf "$2.tar" -C $2 --strip-components 1
   rm $2.tar
