@@ -145,7 +145,7 @@ class WSUWP_Deployment {
 		}
 
 		if ( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'create' === $_SERVER['HTTP_X_GITHUB_EVENT'] && ! empty( $_POST['payload'] ) ) { // @codingStandardsIgnoreLine
-			$this->_handle_create_webhook();
+			$this->handle_create_webhook();
 		} elseif ( ! isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) ) {
 			wp_safe_redirect( home_url() );
 		}
@@ -156,7 +156,7 @@ class WSUWP_Deployment {
 	/**
 	 * Handle the 'create' event passed via webhook from GitHub.
 	 */
-	private function _handle_create_webhook() {
+	private function handle_create_webhook() {
 		// This seems overkill, but it is working.
 		$payload = wp_unslash( $_POST['payload'] ); // @codingStandardsIgnoreLine
 		$payload = maybe_serialize( $payload );
@@ -210,7 +210,7 @@ class WSUWP_Deployment {
 		$deployments[ $time ] = absint( $instance_id );
 		update_post_meta( get_the_ID(), '_deploy_instances', $deployments );
 
-		$this->_handle_deploy( $deployment_data['tag'], $deployment );
+		$this->handle_deploy( $deployment_data['tag'], $deployment );
 
 		die();
 	}
@@ -227,7 +227,7 @@ class WSUWP_Deployment {
 	 * @param string  $tag  Tagged version being deployed.
 	 * @param WP_Post $post Object containing the project being deployed.
 	 */
-	private function _handle_deploy( $tag, $post ) {
+	private function handle_deploy( $tag, $post ) {
 		// Tags can only be alphanumeric with dashes and dots
 		if ( 0 === preg_match( '|^([a-zA-Z0-9-.])+$|', $tag ) ) {
 			die( 'Invalid tag format' );
