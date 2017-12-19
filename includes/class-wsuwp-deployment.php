@@ -159,8 +159,6 @@ class WSUWP_Deployment {
 	private function handle_create_webhook() {
 		// This seems overkill, but it is working.
 		$payload = wp_unslash( $_POST['payload'] ); // @codingStandardsIgnoreLine
-		$payload = maybe_serialize( $payload );
-		$payload = maybe_unserialize( $payload );
 		$payload = json_decode( $payload );
 
 		$deployment_data = array(
