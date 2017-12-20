@@ -59,11 +59,11 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	}
 
 	if ( 'plugin-individual' === $deploy_type ) {
-		$destination = WP_CONTENT_DIR . '/plugins/' . $directory;
+		$destination = 'plugins/' . $directory;
 	} elseif ( 'theme-individual' === $deploy_type ) {
-		$destination = WP_CONTENT_DIR . '/themes/' . $directory;
+		$destination = 'themes/' . $directory;
 	} elseif ( 'mu-plugin-individual' === $deploy_type ) {
-		$destination = WP_CONTENT_DIR . '/mu-plugins/' . $directory;
+		$destination = 'mu-plugins/' . $directory;
 	}
 
 	// Given a URL like https://github.com/washingtonstateuniversity/WSUWP-spine-parent-theme/archive/0.27.16.zip
@@ -74,9 +74,10 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	$skin = new \Automatic_Upgrader_Skin;
 	$upgrader = new \WP_Upgrader( $skin );
 
+	// "Install" the package to a shadow directory to be looped through by an external script.
 	$install_result = $upgrader->install_package( array(
 		'source' => WP_CONTENT_DIR . '/uploads/deploys/' . $unzipped_directory,
-		'destination' => $destination,
+		'destination' => WP_CONTENT_DIR . '/uploads/deploys/' . $destination,
 		'clear_destination' => true,
 		'clear_working' => true,
 		'abort_if_destination_exists' => true,
@@ -90,7 +91,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	$payload_json = json_encode( array(
 		'channel'      => '#wsuwp',
 		'username'     => 'wsuwp-deployment',
-		'text'         => 'Version ' . $tag . ' of ' . $directory . ' has been deployed by ' . $sender . ' to ' . gethostname() . '.',
+		'text'         => 'Version ' . $tag . ' of ' . $directory . ' has been staged for deployment on ' . gethostname() . ' by ' . $sender . '.',
 		'icon_emoji'   => ':rocket:',
 	) );
 	wp_remote_post( 'https://hooks.slack.com/services/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', array(
