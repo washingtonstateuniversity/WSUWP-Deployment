@@ -39,7 +39,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	$temp_file = download_url( $url );
 
 	if ( is_wp_error( $temp_file ) ) {
-		error_log( $temp_file->get_error_message() );
+		send_slack_notification( $temp_file->get_error_message() );
 		return;
 	}
 
@@ -50,14 +50,14 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	@ unlink( $temp_file );
 
 	if ( false === $move_new_file ) {
-		error_log( 'Could not move downloaded file' );
+		send_slack_notification( 'Unable to move ' . $deploy_file );
 		return;
 	}
 
 	$unzip_result = unzip_file( $deploy_file, WP_CONTENT_DIR . '/uploads/deploys' );
 
 	if ( is_wp_error( $unzip_result ) ) {
-		error_log( $unzip_result->get_error_message() );
+		send_slack_notification( $unzip_result->get_error_message() );
 		return;
 	}
 
@@ -91,18 +91,31 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		return;
 	}
 
+	$message = 'Version ' . $tag . ' of ' . $directory . ' has been staged for deployment on ' . gethostname() . ' by ' . $sender . '.';
+	send_slack_notification( $message );
+
+	return;
+}
+
+/**
+ * Send a notification to the WSU Web Slack.
+ *
+ * @since 3.0.0
+ *
+ * @param string $message
+ */
+function send_slack_notification( $message ) {
 	$payload_json = json_encode( array(
 		'channel'      => '#wsuwp',
 		'username'     => 'wsuwp-deployment',
-		'text'         => 'Version ' . $tag . ' of ' . $directory . ' has been staged for deployment on ' . gethostname() . ' by ' . $sender . '.',
+		'text'         => esc_js( $message ),
 		'icon_emoji'   => ':rocket:',
 	) );
+
 	wp_remote_post( 'https://hooks.slack.com/services/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', array(
 		'body'       => $payload_json,
 		'headers' => array(
 			'Content-Type' => 'application/json',
 		),
 	) );
-
-	return;
 }
