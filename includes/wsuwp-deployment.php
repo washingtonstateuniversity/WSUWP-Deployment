@@ -8,10 +8,13 @@ add_action( 'wsuwp_run_scheduled_deployment', 'WSUWP\Deployment\run_scheduled_de
  * Run a scheduled deployment of a public repository using the arguments
  * stored when the schedule was set.
  *
- * @param $tag
- * @param $directory
- * @param $url
- * @param string $deploy_type theme-individual, plugin-individual, mu-plugin-individual
+ * @since 3.0.0
+ *
+ * @param string $tag         The version of the package being deployed (x.y.z).
+ * @param string $directory   The directory name the package should be installed under.
+ * @param string $url         The URL from which to download the package.
+ * @param string $deploy_type Type of deployment. Currently supported: theme-individual,
+ *                            plugin-individual, mu-plugin-individual
  * @param string $sender      The GitHub user who tagged the release.
  */
 function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender ) {
