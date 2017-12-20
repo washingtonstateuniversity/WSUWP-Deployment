@@ -14,7 +14,7 @@ if [ ! -z "$(ls -A themes)" ]; then
 
      rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$theme" "/var/www/wp-content/$theme"
 
-     chown -R www-data:www-data "/var/www/wp-content/$theme"
+     chown -R nginx:webadmin "/var/www/wp-content/$theme"
 
      rm -rf "/var/www/wp-content/uploads/deploys/$theme"
 
@@ -36,7 +36,7 @@ if [ ! -z "$(ls -A plugins)" ]; then
 
     rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$plugin" "/var/www/wp-content/$plugin"
 
-    chown -R www-data:www-data "/var/www/wp-content/$plugin"
+    chown -R nginx:webadmin "/var/www/wp-content/$plugin"
 
     rm -rf "/var/www/wp-content/uploads/deploys/$plugin"
 
@@ -58,7 +58,7 @@ if [ ! -z "$(ls -A mu-plugins)" ]; then
 
     rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$muplugin" "/var/www/wp-content/$muplugin"
 
-    chown -R www-data:www-data "/var/www/wp-content/$muplugin"
+    chown -R nginx:webadmin "/var/www/wp-content/$muplugin"
 
     rm -rf "/var/www/wp-content/uploads/deploys/$muplugin"
 
