@@ -23,7 +23,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		'theme-individual',
 		'plugin-individual',
 		'mu-plugin-individual',
-	) ) ) {
+	), true ) ) {
 		return;
 	}
 
@@ -46,8 +46,8 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	$deploy_file = WP_CONTENT_DIR . '/uploads/deploys/' . $tag . '.zip';
 
 	// use copy and unlink because rename breaks streams.
-	$move_new_file = @ copy( $temp_file, $deploy_file );
-	@ unlink( $temp_file );
+	$move_new_file = @ copy( $temp_file, $deploy_file ); // @codingStandardsIgnoreLine
+	@ unlink( $temp_file ); // @codingStandardsIgnoreLine
 
 	if ( false === $move_new_file ) {
 		send_slack_notification( 'Unable to move ' . $deploy_file );
@@ -72,9 +72,9 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	// Given a URL like https://github.com/washingtonstateuniversity/WSUWP-spine-parent-theme/archive/0.27.16.zip
 	// Determine a directory name like WSUWP-spine-parent-theme-0.27.16
 	$url_pieces = explode( '/', $url );
-	$unzipped_directory = $url_pieces[ 4 ] . '-' . $tag;
+	$unzipped_directory = $url_pieces[4] . '-' . $tag;
 
-	$skin = new \Automatic_Upgrader_Skin;
+	$skin = new \Automatic_Upgrader_Skin();
 	$upgrader = new \WP_Upgrader( $skin );
 
 	// "Install" the package to a shadow directory to be looped through by an external script.
@@ -87,14 +87,12 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 	) );
 
 	if ( is_wp_error( $install_result ) ) {
-		error_log( $install_result->get_error_message() );
+		send_slack_notification( $install_result->get_error_message() );
 		return;
 	}
 
 	$message = 'Version ' . $tag . ' of ' . $directory . ' has been staged for deployment on ' . gethostname() . ' by ' . $sender . '.';
 	send_slack_notification( $message );
-
-	return;
 }
 
 /**
@@ -105,7 +103,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
  * @param string $message
  */
 function send_slack_notification( $message ) {
-	$payload_json = json_encode( array(
+	$payload_json = wp_json_encode( array(
 		'channel'      => '#wsuwp',
 		'username'     => 'wsuwp-deployment',
 		'text'         => esc_js( $message ),
