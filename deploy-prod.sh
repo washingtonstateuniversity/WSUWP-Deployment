@@ -1,144 +1,69 @@
 #!/bin/bash
 #
-# Process queued deployments on a cron schedule.
+# Process staged deployments on a cron schedule.
 
-# Handle individual plugin deployments
-for deploy in `ls /var/repos/deploy_plugin-individual_*`
-do
-  repo=$(cat $deploy)
-  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
-  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
+cd /var/www/wp-content/uploads/deploys
 
-  mkdir -p "/var/www/wp-content/plugins/$repo"
+if [ ! -z "$(ls -A themes)" ]; then
+   for theme in `ls -d themes/*/`
+   do
+     find "/var/www/wp-content/uploads/deploys/$theme" -type d -exec chmod 775 {} \;
+     find "/var/www/wp-content/uploads/deploys/$theme" -type f -exec chmod 664 {} \;
 
-  rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/" "/var/www/wp-content/plugins/$repo/"
+     mkdir -p "/var/www/wp-content/$theme"
 
-  chown -R www-data:www-data "/var/www/wp-content/plugins/$repo"
-  rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo plugin repository has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
-  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
-  eval $slack_command
-done
+     rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$theme" "/var/www/wp-content/$theme"
 
-# Handle individual MU plugin deployments
-for deploy in `ls /var/repos/deploy_mu-plugin-individual_*`
-do
-  repo=$(cat $deploy)
-  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
-  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
+     chown -R webadmin:webadmin "/var/www/wp-content/$theme"
 
-  mkdir -p "/var/www/wp-content/mu-plugins/$repo"
+     rm -rf "/var/www/wp-content/uploads/deploys/$theme"
 
-  rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/" "/var/www/wp-content/mu-plugins/$repo/"
+     slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$theme deployed\", \"icon_emoji\": \":rocket:\"}'"
+     slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+     eval $slack_command
+   done
+fi
 
-  chown -R www-data:www-data "/var/www/wp-content/mu-plugins/$repo"
-  rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo mu-plugin repository has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
-  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
-  eval $slack_command
-done
+cd /var/www/wp-content/uploads/deploys
 
-# Handle individual theme deployments
-for deploy in `ls /var/repos/deploy_theme-individual_*`
-do
-  repo=$(cat $deploy)
-  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
-  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
-
-  mkdir -p "/var/www/wp-content/themes/$repo"
-
-  rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/" "/var/www/wp-content/themes/$repo/"
-
-  chown -R www-data:www-data "/var/www/wp-content/themes/$repo"
-  rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo theme repository has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
-  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
-  eval $slack_command
-done
-
-# Handle MU plugin collection deployments
-for deploy in `ls /var/repos/deploy_mu-plugin-collection_*`
-do
-  repo=$(cat $deploy)
-  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
-  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
-
-  for dir in `ls "/var/repos/$repo"`
+if [ ! -z "$(ls -A plugins)" ]; then
+  for plugin in `ls -d plugins/*/`
   do
-    if [ -d "/var/repos/$repo/$dir" ]; then
-      mkdir -p "/var/www/wp-content/mu-plugins/$dir"
-      rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/$dir/" "/var/www/wp-content/mu-plugins/$dir/"
-    fi
+    find "/var/www/wp-content/uploads/deploys/$plugin" -type d -exec chmod 775 {} \;
+    find "/var/www/wp-content/uploads/deploys/$plugin" -type f -exec chmod 664 {} \;
+
+    mkdir -p "/var/www/wp-content/$plugin"
+
+    rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$plugin" "/var/www/wp-content/$plugin"
+
+    chown -R webadmin:webadmin "/var/www/wp-content/$plugin"
+
+    rm -rf "/var/www/wp-content/uploads/deploys/$plugin"
+
+    slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$plugin deployed\", \"icon_emoji\": \":rocket:\"}'"
+    slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+    eval $slack_command
   done
+fi
 
-  chown -R www-data:www-data /var/www/wp-content/mu-plugins
-  rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo MU plugin collection has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
-  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
-  eval $slack_command
-done
+cd /var/www/wp-content/uploads/deploys
 
-# Handle plugin collection deployments
-for deploy in `ls /var/repos/deploy_plugin-collection_*`
-do
-  repo=$(cat $deploy)
-  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
-  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
-
-  for dir in `ls "/var/repos/$repo"`
+if [ ! -z "$(ls -A mu-plugins)" ]; then
+  for muplugin in `ls -d mu-plugins/*/`
   do
-    if [ -d "/var/repos/$repo/$dir" ]; then
-      mkdir -p "/var/www/wp-content/plugins/$dir"
-      rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/$dir/" "/var/www/wp-content/plugins/$dir/"
-    fi
+    find "/var/www/wp-content/uploads/deploys/$muplugin" -type d -exec chmod 775 {} \;
+    find "/var/www/wp-content/uploads/deploys/$muplugin" -type f -exec chmod 664 {} \;
+
+    mkdir -p "/var/www/wp-content/$muplugin"
+
+    rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$muplugin" "/var/www/wp-content/$muplugin"
+
+    chown -R webadmin:webadmin "/var/www/wp-content/$muplugin"
+
+    rm -rf "/var/www/wp-content/uploads/deploys/$muplugin"
+
+    slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"$muplugin deployed\", \"icon_emoji\": \":rocket:\"}'"
+    slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+    eval $slack_command
   done
-
-  chown -R www-data:www-data /var/www/wp-content/plugins
-  rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo plugin collection has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
-  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
-  eval $slack_command
-done
-
-# Handle theme collection deployments
-for deploy in `ls /var/repos/deploy_theme-collection_*`
-do
-  repo=$(cat $deploy)
-  find "/var/repos/$repo/" -type d -exec chmod 775 {} \;
-  find "/var/repos/$repo/" -type f -exec chmod 664 {} \;
-
-  for dir in `ls "/var/repos/$repo"`
-  do
-    if [ -d "/var/repos/$repo/$dir" ]; then
-      mkdir -p "/var/www/wp-content/themes/$dir"
-      rsync -rgvzh --delete --exclude '.git' "/var/repos/$repo/$dir/" "/var/www/wp-content/themes/$dir/"
-    fi
-  done
-
-  chown -R www-data:www-data /var/www/wp-content/themes
-  rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"The $repo theme collection has just been deployed to $1\", \"icon_emoji\": \":rocket:\"}'"
-  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
-  eval $slack_command
-done
-
-# Handle general platform deployment
-for deploy in `ls /var/repos/deploy_platform.txt`
-do
-  find "/var/repos/wsuwp-platform/" -type d -exec chmod 775 {} \;
-  find "/var/repos/wsuwp-platform/" -type f -exec chmod 664 {} \;
-
-  rsync -rgvzh --delete --exclude '.git' --exclude 'html/' --exclude 'cgi-bin/' --exclude 'wp-config.php' --exclude 'wp-content/mu-plugins/*/***' --exclude 'wp-content/plugins/' --exclude 'wp-content/themes/' --exclude 'wp-content/uploads/' /var/repos/wsuwp-platform/www/ /var/www/
-
-  chown -R www-data:www-data /var/www/*.php
-  chown -R www-data:www-data /var/www/wordpress/
-  chown -R www-data:www-data /var/www/wp-content/*.php
-  chown -R www-data:www-data /var/www/wp-content/mu-plugins/
-  chown -R www-data:www-data /var/www/wp-content/plugins/
-  chown -R www-data:www-data /var/www/wp-content/themes/
-
-  rm "$deploy"
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"WSUWP Platform has just been deployed $1\", \"icon_emoji\": \":rocket:\"}'"
-  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
-  eval $slack_command
-done
+fi

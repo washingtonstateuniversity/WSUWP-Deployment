@@ -145,7 +145,7 @@ class WSUWP_Deployment {
 		}
 
 		if ( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'create' === $_SERVER['HTTP_X_GITHUB_EVENT'] && ! empty( $_POST['payload'] ) ) { // @codingStandardsIgnoreLine
-			$this->_handle_create_webhook();
+			$this->handle_create_webhook();
 		} elseif ( ! isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) ) {
 			wp_safe_redirect( home_url() );
 		}
@@ -156,11 +156,9 @@ class WSUWP_Deployment {
 	/**
 	 * Handle the 'create' event passed via webhook from GitHub.
 	 */
-	private function _handle_create_webhook() {
+	private function handle_create_webhook() {
 		// This seems overkill, but it is working.
 		$payload = wp_unslash( $_POST['payload'] ); // @codingStandardsIgnoreLine
-		$payload = maybe_serialize( $payload );
-		$payload = maybe_unserialize( $payload );
 		$payload = json_decode( $payload );
 
 		$deployment_data = array(
@@ -210,7 +208,7 @@ class WSUWP_Deployment {
 		$deployments[ $time ] = absint( $instance_id );
 		update_post_meta( get_the_ID(), '_deploy_instances', $deployments );
 
-		$this->_handle_deploy( $deployment_data['tag'], $deployment );
+		$this->handle_deploy( $deployment_data, $deployment );
 
 		die();
 	}
@@ -224,12 +222,12 @@ class WSUWP_Deployment {
 	 * deploy-build.sh 0.0.1 directory-of-theme https://github.com/washingtonstateuniversity/repository.git theme-individual public
 	 * SCRIPT ^        TAG ^ DIRECTORY ^        REPOSITORY URL ^                                            TYPE ^           PUBLIC ^
 	 *
-	 * @param string  $tag  Tagged version being deployed.
-	 * @param WP_Post $post Object containing the project being deployed.
+	 * @param array   $deployment Array of webhook information.
+	 * @param WP_Post $post       Object containing the project being deployed.
 	 */
-	private function _handle_deploy( $tag, $post ) {
+	private function handle_deploy( $deployment, $post ) {
 		// Tags can only be alphanumeric with dashes and dots
-		if ( 0 === preg_match( '|^([a-zA-Z0-9-.])+$|', $tag ) ) {
+		if ( 0 === preg_match( '|^([a-zA-Z0-9-.])+$|', $deployment['tag'] ) ) {
 			die( 'Invalid tag format' );
 		}
 
@@ -255,10 +253,18 @@ class WSUWP_Deployment {
 		if ( 'public' === $deploy_public ) {
 			// Remove .git from any existing repository URLs.
 			$repository_url = str_replace( '.git', '', $repository_url );
-			$repository_url = trailingslashit( $repository_url ) . 'archive/' . $tag . '.tar.gz';
+			$repository_url = trailingslashit( $repository_url ) . 'archive/' . $deployment['tag'] . '.zip';
+		} else {
+			die( 'Private repositories cannot currently be deployed.' );
 		}
 
-		shell_exec( 'sh /var/repos/deploy-build.sh ' . $tag . ' ' . $repository_directory . ' ' . $repository_url . ' ' . $deploy_type . ' ' . $deploy_public ); // @codingStandardsIgnoreLine
+		wp_schedule_single_event( time() + 1, 'wsuwp_run_scheduled_deployment', array(
+			'tag' => $deployment['tag'],
+			'directory' => $repository_directory,
+			'url' => $repository_url,
+			'deploy_type' => $deploy_type,
+			'sender' => $deployment['sender'],
+		) );
 	}
 
 	/**

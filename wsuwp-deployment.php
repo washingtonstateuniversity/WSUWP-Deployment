@@ -22,5 +22,7 @@ add_action( 'after_setup_theme', 'WSUWP_Deployment' );
  * @return \WSUWP_Deployment
  */
 function WSUWP_Deployment() {
+	require dirname( __FILE__ ) . '/includes/wsuwp-deployment.php';
+
 	return WSUWP_Deployment::get_instance();
 }
