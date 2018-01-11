@@ -23,6 +23,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		'theme-individual',
 		'plugin-individual',
 		'mu-plugin-individual',
+		'build-plugins-public',
 	), true ) ) {
 		return;
 	}
@@ -67,6 +68,8 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		$destination = 'themes/' . $directory;
 	} elseif ( 'mu-plugin-individual' === $deploy_type ) {
 		$destination = 'mu-plugins/' . $directory;
+	} elseif ( 'build-plugins-public' === $deploy_type ) {
+		$destination = 'build-plugins/' . $directory;
 	}
 
 	// Given a URL like https://github.com/washingtonstateuniversity/WSUWP-spine-parent-theme/archive/0.27.16.zip

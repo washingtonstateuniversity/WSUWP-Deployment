@@ -67,3 +67,25 @@ if [ ! -z "$(ls -A mu-plugins)" ]; then
     eval $slack_command
   done
 fi
+
+if [ ! -z "$(ls -A build-plugins)" ]; then
+  for plugin in `ls -d build-plugins/public-plugins-build/*/`
+  do
+    find "/var/www/wp-content/uploads/deploys/$plugin" -type d -exec chmod 775 {} \;
+    find "/var/www/wp-content/uploads/deploys/$plugin" -type f -exec chmod 664 {} \;
+
+    mkdir -p "/var/www/wp-content/$plugin"
+
+    rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$plugin" "/var/www/wp-content/$plugin"
+
+    chown -R webadmin:webadmin "/var/www/wp-content/$plugin"
+
+    rm -rf "/var/www/wp-content/uploads/deploys/$plugin"
+  done
+
+  rm -rf "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build"
+
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"build-plugins/public-plugins-build/ deployed\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
+fi
