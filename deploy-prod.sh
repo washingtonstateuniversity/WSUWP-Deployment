@@ -69,18 +69,18 @@ if [ ! -z "$(ls -A mu-plugins)" ]; then
 fi
 
 if [ ! -z "$(ls -A build-plugins)" ]; then
-  for plugin in `ls -d build-plugins/public-plugins-build/*/`
+  for plugin in `ls -d build-plugins/public-plugins-build/*/ | sed "s/build-plugins\/public-plugins-build\///g"`
   do
-    find "/var/www/wp-content/uploads/deploys/$plugin" -type d -exec chmod 775 {} \;
-    find "/var/www/wp-content/uploads/deploys/$plugin" -type f -exec chmod 664 {} \;
+    find "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build/$plugin" -type d -exec chmod 775 {} \;
+    find "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build/$plugin" -type f -exec chmod 664 {} \;
 
-    mkdir -p "/var/www/wp-content/$plugin"
+    mkdir -p "/var/www/wp-content/plugins/$plugin"
 
-    rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/$plugin" "/var/www/wp-content/$plugin"
+    rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build/$plugin" "/var/www/wp-content/plugins/$plugin"
 
-    chown -R webadmin:webadmin "/var/www/wp-content/$plugin"
+    chown -R webadmin:webadmin "/var/www/wp-content/plugins/$plugin"
 
-    rm -rf "/var/www/wp-content/uploads/deploys/$plugin"
+    rm -rf "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build/$plugin"
   done
 
   rm -rf "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build"
