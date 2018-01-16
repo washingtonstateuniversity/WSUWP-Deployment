@@ -5,7 +5,7 @@ Manages the deployment of themes and plugins on WSU's instance of the WSUWP Plat
 ## Requirements
 
 * A `deploys` directory in `/var/www/wp-content/uploads`.
-* `mu-plugins`, `themes`, `plugins`, and `build-plugins` directories in that `deploys` directory.
+* `mu-plugins`, `themes`, `plugins`, `build-plugins`, and `platform` directories in that `deploys` directory.
 * The web application user must be able to write to the `deploys` directory.
 * The cron for `deploy-prod.sh` should be setup under another user.
 
