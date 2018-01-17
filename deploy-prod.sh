@@ -89,3 +89,23 @@ if [ ! -z "$(ls -A build-plugins)" ]; then
   slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
   eval $slack_command
 fi
+
+if [ ! -z "$(ls -A platform)" ]; then
+  find "/var/www/wp-content/uploads/deploys/platform/wsuwp-platform/" -type d -exec chmod 775 {} \;
+  find "/var/www/wp-content/uploads/deploys/platform/wsuwp-platform/" -type f -exec chmod 664 {} \;
+
+  rsync -rgvzh --delete /var/www/wp-content/uploads/deploys/platform/wsuwp-platform/www/wordpress/ /var/www/wordpress/
+
+  cp -f /var/www/wp-content/uploads/deploys/platform/wsuwp-platform/www/wp-content/*.php /var/www/wp-content/
+  cp -f /var/www/wp-content/uploads/deploys/platform/wsuwp-platform/www/wp-content/mu-plugins/*.php /var/www/wp-content/mu-plugins/
+
+  chown -R webadmin:webadmin /var/www/wordpress/
+  chown -R webadmin:webadmin /var/www/wp-content/*.php
+  chown -R webadmin:webadmin /var/www/wp-content/mu-plugins/*.php
+
+  rm -rf "/var/www/wp-content/uploads/deploys/platform/wsuwp-platform"
+
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"platform/wsuwp-platform deployed\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+eval $slack_command
+fi
