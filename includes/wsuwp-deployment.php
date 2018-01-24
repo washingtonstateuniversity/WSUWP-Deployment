@@ -3,6 +3,7 @@
 namespace WSUWP\Deployment;
 
 add_action( 'wsuwp_run_scheduled_deployment', 'WSUWP\Deployment\run_scheduled_deployment', 10, 5 );
+add_filter( 'http_request_args', 'WSUWP\Deployment\filter_authorization_header', 10, 2 );
 
 /**
  * Run a scheduled deployment of a public repository using the arguments
@@ -24,6 +25,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		'plugin-individual',
 		'mu-plugin-individual',
 		'build-plugins-public',
+		'build-plugins-private',
 		'platform',
 	), true ) ) {
 		return;
@@ -69,7 +71,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		$destination = 'themes/' . $directory;
 	} elseif ( 'mu-plugin-individual' === $deploy_type ) {
 		$destination = 'mu-plugins/' . $directory;
-	} elseif ( 'build-plugins-public' === $deploy_type ) {
+	} elseif ( 'build-plugins-public' === $deploy_type || 'build-plugins-private' === $deploy_type ) {
 		$destination = 'build-plugins/' . $directory;
 	} elseif ( 'platform' === $deploy_type ) {
 		$destination = 'platform/' . $directory;
@@ -102,6 +104,36 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 
 	$message = 'Version ' . $tag . ' of ' . $directory . ' has been staged for deployment on ' . gethostname() . ' by ' . $sender . '.';
 	send_slack_notification( $message );
+}
+
+/**
+ * Filter the headers used to download a zip file from GitHub to include
+ * our authentication token when necessary.
+ *
+ * @since 3.0.0
+ *
+ * @param array  $request An array of HTTP request arguments.
+ * @param string $url     The request URL.
+ *
+ * @return array Modified array of HTTP request arguments.
+ */
+function filter_authorization_header( $request, $url ) {
+	if ( ! defined( 'WSUWP_PRIVATE_DEPLOY_TOKEN' ) ) {
+		return $request;
+	}
+
+	$url = strtolower( $url );
+
+	// Whitelist individual private repositories.
+	if ( 0 === strpos( $url, 'https://github.com/washingtonstateuniversity/wsuwp-build-plugins-private' ) ) {
+		$request['headers']['Authorization'] = 'token ' . WSUWP_PRIVATE_DEPLOY_TOKEN;
+	} elseif ( 0 === strpos( $url, 'https://github.com/washingtonstateuniversity/wsuwp-plugin-sso-authentication' ) ) {
+		$request['headers']['Authorization'] = 'token ' . WSUWP_PRIVATE_DEPLOY_TOKEN;
+	} elseif ( 0 === strpos( $url, 'https://github.com/washingtonstateuniversity/wsuwp-plugin-secrets' ) ) {
+		$request['headers']['Authorization'] = 'token ' . WSUWP_PRIVATE_DEPLOY_TOKEN;
+	}
+
+	return $request;
 }
 
 /**

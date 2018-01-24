@@ -250,13 +250,9 @@ class WSUWP_Deployment {
 			$repository_url = esc_url( $repository_url );
 		}
 
-		if ( 'public' === $deploy_public ) {
-			// Remove .git from any existing repository URLs.
-			$repository_url = str_replace( '.git', '', $repository_url );
-			$repository_url = trailingslashit( $repository_url ) . 'archive/' . $deployment['tag'] . '.zip';
-		} else {
-			die( 'Private repositories cannot currently be deployed.' );
-		}
+		// Remove .git from any existing repository URLs.
+		$repository_url = str_replace( '.git', '', $repository_url );
+		$repository_url = trailingslashit( $repository_url ) . 'archive/' . $deployment['tag'] . '.zip';
 
 		wp_schedule_single_event( time() + 1, 'wsuwp_run_scheduled_deployment', array(
 			'tag' => $deployment['tag'],
