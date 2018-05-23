@@ -26,6 +26,7 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		'mu-plugin-individual',
 		'build-plugins-public',
 		'build-plugins-private',
+		'build-themes-public',
 		'platform',
 	), true ) ) {
 		return;
@@ -73,6 +74,8 @@ function run_scheduled_deployment( $tag, $directory, $url, $deploy_type, $sender
 		$destination = 'mu-plugins/' . $directory;
 	} elseif ( 'build-plugins-public' === $deploy_type || 'build-plugins-private' === $deploy_type ) {
 		$destination = 'build-plugins/' . $directory;
+	} elseif ( 'build-themes-public' === $deploy_type ) {
+		$destination = 'build-themes/' . $directory;
 	} elseif ( 'platform' === $deploy_type ) {
 		$destination = 'platform/' . $directory;
 	} else {
