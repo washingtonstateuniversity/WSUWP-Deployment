@@ -83,9 +83,46 @@ if [ ! -z "$(ls -A build-plugins)" ]; then
     rm -rf "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build/$plugin"
   done
 
+  for plugin in `ls -d build-plugins/private-plugins-build/*/ | sed "s/build-plugins\/private-plugins-build\///g"`
+  do
+    find "/var/www/wp-content/uploads/deploys/build-plugins/private-plugins-build/$plugin" -type d -exec chmod 775 {} \;
+    find "/var/www/wp-content/uploads/deploys/build-plugins/private-plugins-build/$plugin" -type f -exec chmod 664 {} \;
+
+    mkdir -p "/var/www/wp-content/plugins/$plugin"
+
+    rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/build-plugins/private-plugins-build/$plugin" "/var/www/wp-content/plugins/$plugin"
+
+    chown -R webadmin:webadmin "/var/www/wp-content/plugins/$plugin"
+
+    rm -rf "/var/www/wp-content/uploads/deploys/build-plugins/private-plugins-build/$plugin"
+  done
+
+  rm -rf "/var/www/wp-content/uploads/deploys/build-plugins/private-plugins-build"
   rm -rf "/var/www/wp-content/uploads/deploys/build-plugins/public-plugins-build"
 
-  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"build-plugins/public-plugins-build/ deployed\", \"icon_emoji\": \":rocket:\"}'"
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"public and private build plugins deployed\", \"icon_emoji\": \":rocket:\"}'"
+  slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
+  eval $slack_command
+fi
+
+if [ ! -z "$(ls -A build-themes)" ]; then
+  for theme in `ls -d build-themes/public-themes-build/*/ | sed "s/build-themes\/public-themes-build\///g"`
+  do
+    find "/var/www/wp-content/uploads/deploys/build-themes/public-themes-build/$theme" -type d -exec chmod 775 {} \;
+    find "/var/www/wp-content/uploads/deploys/build-themes/public-themes-build/$theme" -type f -exec chmod 664 {} \;
+
+    mkdir -p "/var/www/wp-content/themes/$theme"
+
+    rsync -rgvzh --delete --exclude '.git' "/var/www/wp-content/uploads/deploys/build-themes/public-themes-build/$theme" "/var/www/wp-content/themes/$theme"
+
+    chown -R webadmin:webadmin "/var/www/wp-content/themes/$theme"
+
+    rm -rf "/var/www/wp-content/uploads/deploys/build-themes/public-themes-build/$theme"
+  done
+
+  rm -rf "/var/www/wp-content/uploads/deploys/build-themes/public-themes-build"
+
+  slack_payload="'payload={\"channel\": \"#wsuwp\", \"username\": \"wsuwp-deployment\", \"text\": \"public theme collection deployed\", \"icon_emoji\": \":rocket:\"}'"
   slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
   eval $slack_command
 fi
