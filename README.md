@@ -6,7 +6,11 @@ Manages the deployment of themes and plugins on WSU's instance of the [WSUWP Pla
 
 ## Overview
 
-All projects deployed to WSUWP at WSU are maintained in GitHub repositories. This plugin provides a custom post type on the main site's dashboard that manages webhooks for each deployment. When a new deployment is added, a URL is generated that can be added to a GitHub repository's webhook configuration. This webhook should be configured to fire whenever a new tag is created on the repository. Each time a webhook fires on a deployment, a deployment instance is captured as a custom post type to provide a log of past deployments.
+WSU maintains all WordPress projects in GitHub repositories and uses this plugin to deploy those repositories to production. This plugin provides a custom post type on the main site's dashboard that manages webhooks for each deployment.
+
+When an administrator adds a new deployment, the plugin generates a URL that maintainer of a GitHub repository adds to its webhook configuration. The repository maintainer configures the webhook to fire whenever someone tags a new release on the repository.
+
+Each time GitHub fires a webhook in response to a new tag, the plugin captures a deployment instance as a custom post type and provides a log of past deployments.
 
 Tags can consist of any alphanumeric string with any number of `.` or `-` characters. WSU typically uses a [semver](https://semver.org/) like version number (1.2.3) when tagging individual projects and an incremental number with leading zeros (00123) when tagging plugin and theme collections.
 
@@ -20,7 +24,7 @@ Tags can consist of any alphanumeric string with any number of `.` or `-` charac
 
 ## Deployment types
 
-Each deployment type matches the expected format of a repository with its expected location on the server. Deployments can be configured as public (default) or private. If private repositories are used, then `WSUWP_PRIVATE_DEPLOY_TOKEN` should be defined so that the repository's archive can be retrieved from GitHub by the plugin.
+Each deployment type matches the expected format of a repository with its expected location on the server. Deployments can be configured as public (default) or private. If private repositories are used, then `WSUWP_PRIVATE_DEPLOY_TOKEN` should be defined so that the plugin can retrieve the GitHub repository's archive file.
 
 The final slug at which individual themes and plugins deploy to is the slug generated when creating a deployment post type. For example, if a deployment is named "WSUWP Super Cool Plugin", it will, unless edited, deploy to `/wp-content/plugins/wsuwp-super-cool-plugin/`.
 
