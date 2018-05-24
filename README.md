@@ -6,7 +6,7 @@ Manages the deployment of themes and plugins on WSU's instance of the [WSUWP Pla
 
 ## Overview
 
-All projects deployed to WSUWP at WSU are maintained in GitHub repositories. This plugin provides a webhook used with GitHub to deploy a repository to its proper location on the server whenever a tag is released.
+All projects deployed to WSUWP at WSU are maintained in GitHub repositories. This plugin provides a custom post type on the main site's dashboard that manages webhooks for each deployment. When a new deployment is added, a URL is generated that can be added to a GitHub repository's webhook configuration. This webhook should be configured to fire whenever a new tag is created on the repository. Each time a webhook fires on a deployment, a deployment instance is captured as a custom post type to provide a log of past deployments.
 
 Tags can consist of any alphanumeric string with any number of `.` or `-` characters. WSU typically uses a [semver](https://semver.org/) like version number (1.2.3) when tagging individual projects and an incremental number with leading zeros (00123) when tagging plugin and theme collections.
 
