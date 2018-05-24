@@ -6,7 +6,9 @@ Manages the deployment of themes and plugins on WSU's instance of the [WSUWP Pla
 
 ## Overview
 
-All projects deployed to WSUWP at WSU are maintained in GitHub repositories. This plugin provides a webhook used with GitHub to deploy a repository to its proper location on the server whenever a #.#.# tag is released.
+All projects deployed to WSUWP at WSU are maintained in GitHub repositories. This plugin provides a webhook used with GitHub to deploy a repository to its proper location on the server whenever a tag is released.
+
+Tags can consist of any alphanumeric string with any number of `.` or `-` characters. WSU typically uses a semver like version number (1.2.3) when tagging individual projects and an incremental number with leading zeros (00123) when tagging plugin and theme collections.
 
 ## Requirements
 
