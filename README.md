@@ -8,7 +8,7 @@ Manages the deployment of themes and plugins on WSU's instance of the [WSUWP Pla
 
 WSU maintains all WordPress projects in GitHub repositories and uses this plugin to deploy those repositories to production. This plugin provides a custom post type on the main site's dashboard that manages webhooks for each deployment.
 
-When an administrator adds a new deployment, the plugin generates a URL that maintainer of a GitHub repository adds to its webhook configuration. The repository maintainer configures the webhook to fire whenever someone tags a new release on the repository.
+When an administrator adds a new deployment, the plugin generates a URL that the maintainer of a GitHub repository can add to its webhook configuration. The repository maintainer configures the webhook to fire whenever someone tags a new release on the repository.
 
 Each time GitHub fires a webhook in response to a new tag, the plugin captures a deployment instance as a custom post type and provides a log of past deployments.
 
