@@ -14,8 +14,8 @@ Tags can consist of any alphanumeric string with any number of `.` or `-` charac
 
 * A `deploys` directory in `/var/www/wp-content/uploads`.
 * `mu-plugins`, `themes`, `plugins`, `build-plugins`, `build-themes`, and `platform` directories in that `deploys` directory.
-* The web application user must be able to write to the `deploys` directory.
-* A regular cron event should fire `deploy-prod.sh` under another user.
+* The web application user must be able to write to the `deploys` directory and each of its individual sub-directories.
+* A regular cron event should fire `deploy-prod.sh` as another, non-web application user. WSU's cron configuration runs every minute: `*/1 * * * * sh /var/www/wp-content/plugins/wsuwp-deployment/deploy-prod.sh`
 * If deploying private repositories, define `WSUWP_PRIVATE_DEPLOY_TOKEN` in `wp-config.php`. This should be a token that provides authentication to private repositories in your organization. See the [GitHub REST API Authentication](https://developer.github.com/v3/#authentication) documentation.
 
 ## Deployment types
