@@ -146,3 +146,6 @@ if [ ! -z "$(ls -A platform)" ]; then
   slack_command="curl -X POST --data-urlencode $slack_payload https://hooks.slack.com/services/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"
 eval $slack_command
 fi
+
+# Remove all previously deployed zip files.
+rm /var/www/wp-content/uploads/deploys/*.zip
